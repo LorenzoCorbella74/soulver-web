@@ -1,7 +1,9 @@
 let rows = 0;
 let selectedRow = 0;
+let expressions = [];
+let variables = {};
 
-function createRowFromTemplate() {
+function createRowFromTemplate () {
     var temp = document.getElementsByTagName("template")[0];
     var clone = temp.content.cloneNode(true);
     var left = document.querySelector('.content>.left')
@@ -9,7 +11,7 @@ function createRowFromTemplate() {
     focusOnCreatedRow();
 }
 
-function createOrUpdateResult(resultStr) {
+function createOrUpdateResult (resultStr) {
     // se non esiste si crea
     if (!document.querySelectorAll('.content>.right>.row>.result')[selectedRow]) {
         var temp = document.getElementsByTagName("template")[1];
@@ -21,21 +23,21 @@ function createOrUpdateResult(resultStr) {
     document.querySelectorAll('.content>.right>.row>.result')[selectedRow].innerText = resultStr;
 }
 
-function focusOnCreatedRow() {
+function focusOnCreatedRow () {
     let createdEditableNodeLIst = document.querySelectorAll(".row>div:nth-child(2)");
     let createdEditable = Array.from(createdEditableNodeLIst)[rows];
     createdEditable.focus();
     rows++;
 }
 
-function focusRow(num) {
+function focusRow (num) {
     let createdEditableNodeLIst = document.querySelectorAll(".row>div:nth-child(2)");
     let createdEditable = Array.from(createdEditableNodeLIst)[num];
     createdEditable.focus();
     setCaretOnLastPosition(createdEditable);
 }
 
-function setCaretOnLastPosition(el) {
+function setCaretOnLastPosition (el) {
     var range = document.createRange();
     var sel = window.getSelection();
     let selectedRowText = el.childNodes[0];
@@ -45,7 +47,7 @@ function setCaretOnLastPosition(el) {
     sel.addRange(range);
 }
 
-function selectRow(el) {
+function selectRow (el) {
     let createdEditableNodeLIst = document.querySelectorAll(".row>div:nth-child(2)");
     let createdEditable = Array.from(createdEditableNodeLIst);
     for (let i = 0; i < createdEditable.length; i++) {
@@ -58,7 +60,7 @@ function selectRow(el) {
 }
 
 // SOURCE: https://stackoverflow.com/questions/41884969/replacing-content-in-contenteditable-box-while-typing
-function highLite(el) {
+function highLite (el) {
     // si formatta il div con gli stili
     el.previousElementSibling.innerHTML = el.innerHTML
         .replace(/(\d+)/g, "<span class='numbers'>$1</span>")
@@ -69,21 +71,53 @@ function highLite(el) {
     parse(el);
 }
 
-function addRow(e) {
+function onKeyPress (e, el) {
+    // enter
     if (e.keyCode == 13) {
         e.preventDefault(); // ferma l'evento
         if (selectedRow + 1 === rows) {
             createRowFromTemplate();
-            // createOrUpdateResult();
         } else {
             focusRow(selectedRow + 1);
         }
     }
+    // backspace
+    if (e.keyCode == 8 && selectedRow != 0 && el.innerHTML.length == 0) {
+        focusRow(selectedRow - 1);
+    }
 }
 
-function parse(el) {
-    console.log(el.innerHTML);
-    createOrUpdateResult(el.innerHTML)
+function parse (el) {
+    let strToBeParsed = el.innerHTML.trim();       // ciò che deve essere parsato
+    let output;                                     // ciò che deve essere messo nella colonna "results"
+    // se c'è una assegnazione si mette
+    if (/[=]/.test(strToBeParsed)) {
+        let reg = /\s*([^:]*?)\s*=\s*([^:\s]*)/g;
+        while (match = reg.exec(strToBeParsed)) {
+            if (match[1] && match[2]) {
+                variables[match[1]] = match[2];
+            }
+        }
+        output = '';
+    } else if (/[#@]/.test(strToBeParsed)) {
+        strToBeParsed = '';
+        output = strToBeParsed;
+    } else {
+        // si rimuove tutti i caratteri ma non le sottostringhe delle variabili
+        let varConcatenated = Object.keys(variables).join("|");
+        let re = varConcatenated ? `\\b(?!${varConcatenated})\\b([a-zA-Z])+` : '[a-zA-Z]+';
+        strToBeParsed = strToBeParsed.replace(new RegExp(re, "g"), "").replace(/\s/g, '');
+        output = strToBeParsed;
+    }
+    expressions[selectedRow] = strToBeParsed.trim();
+    console.log(el.innerHTML, strToBeParsed, expressions);
+    try {
+        let results = math.evaluate(expressions);
+        createOrUpdateResult(results[selectedRow] ? results[selectedRow] : '');
+    } catch (error) {
+        createOrUpdateResult('');
+        console.log('Completing expression');
+    }
 }
 
 

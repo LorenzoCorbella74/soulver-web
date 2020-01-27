@@ -53,6 +53,7 @@ body {
 .editable,
 .result {
     padding: 16px 16px 8px 16px;
+    min-height: 26.5px;
 }
 
 .formatted {
