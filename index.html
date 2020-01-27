@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Soulver clone</title>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" type="text/css" href="main.css">
+</head>
+
+<body>
+
+  <template>
+    <div class="row">
+      <div class="formatted"></div>
+      <div class="editable" contenteditable oninput="highLite(this)" onkeypress="addRow(event, this)"
+        onfocus="selectRow(this)"></div>
+    </div>
+  </template>
+  <template>
+    <div class="row">
+      <div class="result"></div>
+    </div>
+  </template>
+
+  <div class="content">
+    <!-- INPUT ROWS -->
+    <div class="left"></div>
+    <!-- RESULTS -->
+    <div class="right"></div>
+  </div>
+
+  <script src="./app.js"></script>
+
+</body>
+
+</html>
