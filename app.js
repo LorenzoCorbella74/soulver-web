@@ -19,7 +19,7 @@ function createOrUpdateResult (resultStr) {
         var left = document.querySelector('.content>.right')
         left.appendChild(clone);
     }
-    console.log('Updating result...', resultStr)
+    // console.log('Updating result...', resultStr)
     document.querySelectorAll('.content>.right>.row>.result')[selectedRow].innerText = resultStr;
 }
 
@@ -61,7 +61,6 @@ function selectRow (el) {
 
 // SOURCE: https://stackoverflow.com/questions/41884969/replacing-content-in-contenteditable-box-while-typing
 function highLite (el) {
-    // si formatta il div con gli stili
     el.previousElementSibling.innerHTML = el.innerHTML
         .replace(/(\d+)/g, "<span class='numbers'>$1</span>")
         .replace(/(€|\$)/g, "<span class='currencies'>$1</span>")
@@ -89,7 +88,6 @@ function onKeyPress (e, el) {
 
 function parse (el) {
     let strToBeParsed = el.innerHTML.trim();       // ciò che deve essere parsato
-    let output;                                     // ciò che deve essere messo nella colonna "results"
     // se c'è una assegnazione si mette
     if (/[=]/.test(strToBeParsed)) {
         let reg = /\s*([^:]*?)\s*=\s*([^:\s]*)/g;
@@ -98,16 +96,13 @@ function parse (el) {
                 variables[match[1]] = match[2];
             }
         }
-        output = '';
     } else if (/[#@]/.test(strToBeParsed)) {
         strToBeParsed = '';
-        output = strToBeParsed;
     } else {
         // si rimuove tutti i caratteri ma non le sottostringhe delle variabili
         let varConcatenated = Object.keys(variables).join("|");
         let re = varConcatenated ? `\\b(?!${varConcatenated})\\b([a-zA-Z])+` : '[a-zA-Z]+';
-        strToBeParsed = strToBeParsed.replace(new RegExp(re, "g"), "").replace(/\s/g, '');
-        output = strToBeParsed;
+        strToBeParsed = strToBeParsed.replace(new RegExp(re, "g"), "").replace(/\s+/g, '');
     }
     expressions[selectedRow] = strToBeParsed.trim();
     console.log(el.innerHTML, strToBeParsed, expressions);
