@@ -4,6 +4,23 @@ let expressions = [];
 let variables = {};
 let results = [];
 let relations = []; // indica in quale riga stanno i totali per poi ricaricare 
+let functionNames = ['sin', 'cos', 'tan', 'exp', 'sqrt', 'ceil', 'floor', 'abs', 'acos', 'asin', 'atan', 'log', 'round'];
+let api = {
+    "success": true,
+    "timestamp": 1519296206,
+    "base": "EUR",
+    "date": "2020-01-28",
+    "rates": {
+        "AUD": 1.566015,
+        "CAD": 1.560132,
+        "CHF": 1.154727,
+        "CNY": 7.827874,
+        "GBP": 0.882047,
+        "JPY": 132.360679,
+        "USD": 1.23396
+    }
+}
+let specialOperator = ['in','€']; 
 
 function createRowFromTemplate () {
     var temp = document.getElementsByTagName("template")[0];
@@ -33,7 +50,7 @@ function updateRelated () {
             who.forEach((element, index) => {
                 if (element) {
                     try {
-                        results = math.evaluate(expressions, variables);
+                        results = /* format( */math.evaluate(expressions, variables)/* ,0) */;
                         results.map((e, i) => variables[`R${i}`] = e);  // si mette i risultati di riga nelle variabili
                         updateResultInRow(results[index] ? results[index] : '', index); // si aggiorna la riga corrente
                     } catch (error) {
@@ -89,8 +106,7 @@ function selectRow (el) {
 // SOURCE: https://stackoverflow.com/questions/41884969/replacing-content-in-contenteditable-box-while-typing
 function highLite (el) {
     el.previousElementSibling.innerHTML = el.innerHTML.trim()
-        //.replace(/(\d+)/g, "<span class='numbers'>$1</span>") 
-        .replace(/(?:^|[^Ra-z])(\d+)(?![0-9a-z])/g, "<span class='numbers'> $1</span>")   //solo numeri
+        .replace(/(?:^|[^Ra-z])((\d*\.)?\d+)(?![0-9a-z*\/])/g, "<span class='numbers'> $1</span>")   //solo numeri con '.' come separatore decimale
         .replace(/(^|[^\w]\b)R\d/g, "<span class='result-cell'>$&</span>")   // solo totali di riga: R0, R1,..
         .replace(/(€|\$)/g, "<span class='currencies'>$1</span>")
         .replace(/\#(.*)/g, "<span class='headers'>#$1</span>")
@@ -128,6 +144,13 @@ function setRelation (selectedRow, presences) {
 
 function parse (el) {
     let strToBeParsed = el.innerHTML.trim();       // ciò che deve essere parsato
+    // header
+    if (/[#]/g.test(strToBeParsed)) {
+        strToBeParsed = '';
+        // commento
+    } else if (/[@][\sa-zA-Z]*/g.test(strToBeParsed)) {
+        strToBeParsed = strToBeParsed.replace(/[@][\sa-zA-Z]*/g, "").trim();
+    }
     // se c'è una assegnazione si mette
     if (/[=]/.test(strToBeParsed)) {
         // TODO: gestione espressione dentro il DX di una assegnazione...
@@ -138,11 +161,9 @@ function parse (el) {
             }
         }
         // commenti, headers
-    } else if (/[#@]/.test(strToBeParsed)) {
-        strToBeParsed = '';
     } else {
-        // si rimuove tutti i caratteri ma non le sottostringhe delle variabili
-        let varConcatenated = Object.keys(variables).join("|");
+        // si rimuove tutti i caratteri ma non le sottostringhe delle variabili, nomi delle funzioni ed unità di misura (TODO: monete...)
+        let varConcatenated = Object.keys(variables).concat(functionNames).concat(currencies).concat(specialOperator).join("|");
         let re = varConcatenated ? `\\b(?!${varConcatenated})\\b([a-zA-Z])+` : '[a-zA-Z]+';
         strToBeParsed = strToBeParsed.replace(new RegExp(re, "g"), "").replace(/\s+/g, '');
     }
@@ -155,16 +176,43 @@ function parse (el) {
     setRelation(selectedRow, presences)
 
     try {
-        results = math.evaluate(expressions, variables);
+        results = /* format( */math.evaluate(expressions, variables)/* ,2) */;
         results.map((e, i) => variables[`R${i}`] = e);  // si mette i risultati di riga nelle variabili
         console.log(variables);
         createOrUpdateResult(results[selectedRow] ? results[selectedRow] : ''); // si aggiorna la riga corrente
     } catch (error) {
         createOrUpdateResult('');
-        console.log('Completing expression');
+        console.log('Completing expression', error);
     }
 }
 
+// MOCK taken from https://fixer.io/documentation
+function createCurrencies () {
+    math.createUnit(api.base,{ aliases: ['€']})
+    Object.keys(api.rates)
+        .filter(function (currency) {
+            return currency !== api.base
+        })
+        .forEach(function (currency) {
+            math.createUnit(currency, math.unit(1 / api.rates[currency], api.base))
+        })
+
+    // return an array with all available currencies
+    return Object.keys(api.rates).concat(api.base)
+}
+
+/**
+ * Helper function to format an output a value.
+ * @param {*} value
+ * @return {string} Returns the formatted value
+ */
+function format (value) {
+    const precision = 14
+    return math.format(value, precision)
+  }
+
+
+let currencies = createCurrencies()
 
 // si crea la 1° riga
 createRowFromTemplate()
