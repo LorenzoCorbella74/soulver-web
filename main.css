@@ -58,9 +58,9 @@ body {
 
 .result-cell {
     color: white;
-    padding: 8px;
+/*     padding: 8px; */
     background-color: #2196F3;
-    border-radius: 10px;
+    border-radius: 6px;
 }
 
 .formatted {

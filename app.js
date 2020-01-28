@@ -3,9 +3,9 @@ let selectedRow = 0;
 let expressions = [];
 let variables = {};
 let results = [];
-let relations = {}; // indica in quale riga sta per poi ricaricare 
+let relations = []; // indica in quale riga stanno i totali per poi ricaricare 
 
-function createRowFromTemplate() {
+function createRowFromTemplate () {
     var temp = document.getElementsByTagName("template")[0];
     var clone = temp.content.cloneNode(true);
     var left = document.querySelector('.content>.left')
@@ -13,7 +13,7 @@ function createRowFromTemplate() {
     focusOnCreatedRow();
 }
 
-function createOrUpdateResult(resultStr) {
+function createOrUpdateResult (resultStr) {
     // se non esiste si crea
     if (!document.querySelectorAll('.content>.right>.row>.result')[selectedRow]) {
         var temp = document.getElementsByTagName("template")[1];
@@ -23,27 +23,48 @@ function createOrUpdateResult(resultStr) {
     }
     // console.log('Updating result...', resultStr)
     document.querySelectorAll('.content>.right>.row>.result')[selectedRow].innerText = resultStr;
+    updateRelated()
 }
 
-function updateResultInRow(resultStr, row) {
+function updateRelated () {
+    for (let numRow = 0; numRow < rows; numRow++) {
+        let who = relations.map(e => e && e.includes(`R${numRow}`));
+        if (who && who.length > 0) {
+            who.forEach((element, index) => {
+                if (element) {
+                    try {
+                        results = math.evaluate(expressions, variables);
+                        results.map((e, i) => variables[`R${i}`] = e);  // si mette i risultati di riga nelle variabili
+                        updateResultInRow(results[index] ? results[index] : '', index); // si aggiorna la riga corrente
+                    } catch (error) {
+                        updateResultInRow('', index);
+                        console.log('Completing expression', error);
+                    }
+                }
+            });
+        }
+    }
+}
+
+function updateResultInRow (resultStr, row) {
     document.querySelectorAll('.content>.right>.row>.result')[row].innerText = resultStr;
 }
 
-function focusOnCreatedRow() {
+function focusOnCreatedRow () {
     let createdEditableNodeLIst = document.querySelectorAll(".row>div:nth-child(2)");
     let createdEditable = Array.from(createdEditableNodeLIst)[rows];
     createdEditable.focus();
     rows++;
 }
 
-function focusRow(num) {
+function focusRow (num) {
     let createdEditableNodeLIst = document.querySelectorAll(".row>div:nth-child(2)");
     let createdEditable = Array.from(createdEditableNodeLIst)[num];
     createdEditable.focus();
     setCaretOnLastPosition(createdEditable);
 }
 
-function setCaretOnLastPosition(el) {
+function setCaretOnLastPosition (el) {
     var range = document.createRange();
     var sel = window.getSelection();
     let selectedRowText = el.childNodes[0];
@@ -53,7 +74,7 @@ function setCaretOnLastPosition(el) {
     sel.addRange(range);
 }
 
-function selectRow(el) {
+function selectRow (el) {
     let createdEditableNodeLIst = document.querySelectorAll(".row>div:nth-child(2)");
     let createdEditable = Array.from(createdEditableNodeLIst);
     for (let i = 0; i < createdEditable.length; i++) {
@@ -66,16 +87,18 @@ function selectRow(el) {
 }
 
 // SOURCE: https://stackoverflow.com/questions/41884969/replacing-content-in-contenteditable-box-while-typing
-function highLite(el) {
-    el.previousElementSibling.innerHTML = el.innerHTML
-        .replace(/(\d+)/g, "<span class='numbers'>$1</span>")   // TODO: togliere
+function highLite (el) {
+    el.previousElementSibling.innerHTML = el.innerHTML.trim()
+        //.replace(/(\d+)/g, "<span class='numbers'>$1</span>") 
+        .replace(/(?:^|[^Ra-z])(\d+)(?![0-9a-z])/g, "<span class='numbers'>$1</span>")   //solo numeri
+        .replace(/(^|[^\w]\b)R\d/g, "<span class='result-cell'>$&</span>")   // solo totali di riga: R0, R1,..
         .replace(/(€|\$)/g, "<span class='currencies'>$1</span>")
         .replace(/\#(.*)/g, "<span class='headers'>#$1</span>")
         .replace(/\@(.*)/g, "<span class='comments'>@$1</span>");
     parse(el);
 }
 
-function onKeyPress(e, el) {
+function onKeyPress (e, el) {
     // enter
     if (e.keyCode == 13) {
         e.preventDefault(); // ferma l'evento
@@ -91,16 +114,19 @@ function onKeyPress(e, el) {
     }
     // + as first element of row
     if (e.code === 'BracketRight' && el.innerHTML.length === 0 && rows > 0) {
-        e.preventDefault();
-        /*  let createdEditableNodeLIst = document.querySelectorAll(".row>div:nth-child(2)");
-         let element = Array.from(createdEditableNodeLIst)[selectedRow]; */
+        e.preventDefault(); // non scrive il +
         el.innerHTML = `R${selectedRow - 1}`;
         el.previousElementSibling.innerHTML = `<span class="result-cell R${selectedRow - 1}">R${selectedRow - 1}</span>`;
         setCaretOnLastPosition(el);
     }
 }
 
-function parse(el) {
+function setRelation (selectedRow, presences) {
+    relations[selectedRow] = presences;
+    console.log('Relations: ', relations);
+}
+
+function parse (el) {
     let strToBeParsed = el.innerHTML.trim();       // ciò che deve essere parsato
     // se c'è una assegnazione si mette
     if (/[=]/.test(strToBeParsed)) {
@@ -111,6 +137,7 @@ function parse(el) {
                 variables[match[1]] = match[2];
             }
         }
+        // commenti, headers
     } else if (/[#@]/.test(strToBeParsed)) {
         strToBeParsed = '';
     } else {
@@ -119,13 +146,18 @@ function parse(el) {
         let re = varConcatenated ? `\\b(?!${varConcatenated})\\b([a-zA-Z])+` : '[a-zA-Z]+';
         strToBeParsed = strToBeParsed.replace(new RegExp(re, "g"), "").replace(/\s+/g, '');
     }
-    expressions[selectedRow] = strToBeParsed.trim();
-    console.log(el.innerHTML, strToBeParsed, expressions);
+    expressions[selectedRow] = strToBeParsed;
+    console.log(`Stringa: ${el.innerHTML} - parsata: ${strToBeParsed}`, expressions);
+
+    // se ci stanno Rx si definiscono le relazioni
+    let presences = el.innerHTML.match(/(^|[^\w]\b)R\d/g);
+    setRelation(selectedRow, presences)
+
     try {
         results = math.evaluate(expressions, variables);
-        results.map((e, i) => variables[`R${i}`] = e);
+        results.map((e, i) => variables[`R${i}`] = e);  // si mette i risultati di riga nelle variabili
         console.log(variables);
-        createOrUpdateResult(results[selectedRow] ? results[selectedRow] : '');
+        createOrUpdateResult(results[selectedRow] ? results[selectedRow] : ''); // si aggiorna la riga corrente
     } catch (error) {
         createOrUpdateResult('');
         console.log('Completing expression', error);
