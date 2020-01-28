@@ -22,7 +22,7 @@ let api = {
     }
 };
 
-function createRowFromTemplate () {
+function createRowFromTemplate() {
     var temp = document.getElementsByTagName("template")[0];
     var clone = temp.content.cloneNode(true);
     var left = document.querySelector('.content>.left')
@@ -30,7 +30,7 @@ function createRowFromTemplate () {
     focusOnCreatedRow();
 }
 
-function createOrUpdateResult (resultStr) {
+function createOrUpdateResult(resultStr) {
     // se non esiste si crea
     if (!document.querySelectorAll('.content>.right>.row>.result')[selectedRow]) {
         var temp = document.getElementsByTagName("template")[1];
@@ -43,7 +43,7 @@ function createOrUpdateResult (resultStr) {
     updateRelated()
 }
 
-function updateRelated () {
+function updateRelated() {
     for (let numRow = 0; numRow < rows; numRow++) {
         let who = relations.map(e => e && e.includes(`R${numRow}`));
         if (who && who.length > 0) {
@@ -63,25 +63,25 @@ function updateRelated () {
     }
 }
 
-function updateResultInRow (resultStr, row) {
+function updateResultInRow(resultStr, row) {
     document.querySelectorAll('.content>.right>.row>.result')[row].innerText = resultStr;
 }
 
-function focusOnCreatedRow () {
+function focusOnCreatedRow() {
     let createdEditableNodeLIst = document.querySelectorAll(".row>div:nth-child(2)");
     let createdEditable = Array.from(createdEditableNodeLIst)[rows];
     createdEditable.focus();
     rows++;
 }
 
-function focusRow (num) {
+function focusRow(num) {
     let createdEditableNodeLIst = document.querySelectorAll(".row>div:nth-child(2)");
     let createdEditable = Array.from(createdEditableNodeLIst)[num];
     createdEditable.focus();
     setCaretOnLastPosition(createdEditable);
 }
 
-function setCaretOnLastPosition (el) {
+function setCaretOnLastPosition(el) {
     var range = document.createRange();
     var sel = window.getSelection();
     let selectedRowText = el.childNodes[0];
@@ -91,7 +91,7 @@ function setCaretOnLastPosition (el) {
     sel.addRange(range);
 }
 
-function selectRow (el) {
+function selectRow(el) {
     let createdEditableNodeLIst = document.querySelectorAll(".row>div:nth-child(2)");
     let createdEditable = Array.from(createdEditableNodeLIst);
     for (let i = 0; i < createdEditable.length; i++) {
@@ -104,17 +104,18 @@ function selectRow (el) {
 }
 
 // SOURCE: https://stackoverflow.com/questions/41884969/replacing-content-in-contenteditable-box-while-typing
-function highLite (el) {
+function highLite(el) {
     el.previousElementSibling.innerHTML = el.innerHTML.trim()
         .replace(/(?:^|[^Ra-z])((\d*\.)?\d+)(?![0-9a-z*\/])/g, "<span class='numbers'> $1</span>")   //solo numeri con '.' come separatore decimale
         .replace(/(^|[^\w]\b)R\d/g, "<span class='result-cell'>$&</span>")   // solo totali di riga: R0, R1,..
         .replace(/(EUR|USD|GBP)/g, "<span class='currencies'>$1</span>")
         .replace(/\#(.*)/g, "<span class='headers'>#$1</span>")
+        .replace(/total/g, "<span class='headers'>total</span>")
         .replace(/\@(.*)/g, "<span class='comments'>@$1</span>");
     parse(el);
 }
 
-function onKeyPress (e, el) {
+function onKeyPress(e, el) {
     // enter
     if (e.keyCode == 13) {
         e.preventDefault(); // stop event
@@ -137,12 +138,12 @@ function onKeyPress (e, el) {
     }
 }
 
-function setRelation (selectedRow, presences) {
+function setRelation(selectedRow, presences) {
     relations[selectedRow] = presences;
     console.log('Relations: ', relations);
 }
 
-function parse (el) {
+function parse(el) {
     let strToBeParsed = el.innerHTML.trim();       // ciò che deve essere parsato
     // header
     if (/[#]/g.test(strToBeParsed)) {
@@ -151,8 +152,8 @@ function parse (el) {
     } else if (/[@][\sa-zA-Z]*/g.test(strToBeParsed)) {
         strToBeParsed = strToBeParsed.replace(/[@][\sa-zA-Z]*/g, "").trim();
     } else if (/total/g.test(strToBeParsed)) {
-        let out='0';
-        for (var i = 0; i <= rows-2; i++) {
+        let out = '0';
+        for (var i = 0; i <= rows - 2; i++) {
             out += `+ R${i}`
         }
         strToBeParsed = out;
@@ -175,11 +176,11 @@ function parse (el) {
         strToBeParsed = strToBeParsed.replace(new RegExp(re, "g"), "").replace(/\s+/g, '').trim();
     }
 
-    expressions[selectedRow] = strToBeParsed.replace(/[\&;]/g, '').trim();
+    expressions[selectedRow] = strToBeParsed.replace(/[\&;]/g, '').trim() || 0;
     console.log(`Stringa: ${el.innerHTML} - parsata: ${strToBeParsed}`, expressions);
 
     // se ci stanno Rx si definiscono le relazioni
-    let presences = el.innerHTML !=='total' ? el.innerHTML.match(/(^|[^\w]\b)R\d/g) : strToBeParsed.match(/(^|[^\w]\b)R\d/g).map(e=> e.replace(/\+/g,''));
+    let presences = el.innerHTML !== 'total' ? el.innerHTML.match(/(^|[^\w]\b)R\d/g) : strToBeParsed.match(/(^|[^\w]\b)R\d/g).map(e => e.replace(/\+/g, ''));
     setRelation(selectedRow, presences)
 
     try {
@@ -193,7 +194,7 @@ function parse (el) {
     }
 }
 
-function createCurrencies () {
+function createCurrencies() {
     math.createUnit(api.base, { aliases: ['€'] })
     Object.keys(api.rates)
         .filter(function (currency) {
@@ -211,7 +212,7 @@ function createCurrencies () {
  * @param {*} value
  * @return {string} Returns the formatted value
  */
-function format (value) {
+function format(value) {
     const precision = 14
     return math.format(value, precision)
 }
