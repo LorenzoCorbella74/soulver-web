@@ -45,7 +45,7 @@ function createOrUpdateResult(resultStr) {
 
 function updateRelated() {
     for (let numRow = 0; numRow < rows; numRow++) {
-        let who = relations.map(e => e && e.includes(`R${numRow}`));
+        let who = relations.map(e => e && (e.includes(`R${numRow}`) || Object.keys(variables).findIndex(a => a == e) > -1)); // FIXME: da rivedere...
         if (who && who.length > 0) {
             who.forEach((element, index) => {
                 if (element) {
@@ -68,15 +68,13 @@ function updateResultInRow(resultStr, row) {
 }
 
 function focusOnCreatedRow() {
-    let createdEditableNodeLIst = document.querySelectorAll(".row>div:nth-child(2)");
-    let createdEditable = Array.from(createdEditableNodeLIst)[rows];
+    let createdEditable = Array.from(document.querySelectorAll(".row>div:nth-child(2)"))[rows];
     createdEditable.focus();
     rows++;
 }
 
 function focusRow(num) {
-    let createdEditableNodeLIst = document.querySelectorAll(".row>div:nth-child(2)");
-    let createdEditable = Array.from(createdEditableNodeLIst)[num];
+    let createdEditable = Array.from(document.querySelectorAll(".row>div:nth-child(2)"))[num];
     createdEditable.focus();
     setCaretOnLastPosition(createdEditable);
 }
@@ -85,15 +83,16 @@ function setCaretOnLastPosition(el) {
     var range = document.createRange();
     var sel = window.getSelection();
     let selectedRowText = el.childNodes[0];
-    range.setStart(selectedRowText, selectedRowText.length);
-    range.collapse(true);
-    sel.removeAllRanges();
-    sel.addRange(range);
+    if (selectedRowText) {
+        range.setStart(selectedRowText, selectedRowText.length);
+        range.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(range);
+    }
 }
 
 function selectRow(el) {
-    let createdEditableNodeLIst = document.querySelectorAll(".row>div:nth-child(2)");
-    let createdEditable = Array.from(createdEditableNodeLIst);
+    let createdEditable = Array.from(document.querySelectorAll(".row>div:nth-child(2)"));
     for (let i = 0; i < createdEditable.length; i++) {
         const element = createdEditable[i];
         if (element === el) {
@@ -183,7 +182,9 @@ function parse(el) {
     console.log(`Stringa: ${el.innerHTML} - parsata: ${strToBeParsed}`, expressions);
 
     // se ci stanno Rx si definiscono le relazioni
-    let presences = el.innerHTML !== 'total' ? el.innerHTML.match(/(^|[^\w]\b)R\d/g) : strToBeParsed.match(/(^|[^\w]\b)R\d/g).map(e => e.replace(/\+/g, ''));
+    let relRegStr = `(^|[^\w]\b)(R\d|${Object.keys(variables).join('|')})`
+    let relReg = new RegExp(relRegStr, "g")
+    let presences = el.innerHTML !== 'total' ? el.innerHTML.match(relReg) : strToBeParsed.match(relReg).map(e => e.replace(/\+/g, ''));
     setRelation(selectedRow, presences)
 
     try {
@@ -210,11 +211,6 @@ function createCurrencies() {
     return Object.keys(api.rates).concat(api.base)
 }
 
-/**
- * Helper function to format an output a value.
- * @param {*} value
- * @return {string} Returns the formatted value
- */
 function format(value) {
     const precision = 14
     return math.format(value, precision)
