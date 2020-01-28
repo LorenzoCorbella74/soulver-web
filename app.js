@@ -143,6 +143,13 @@ function setRelation(selectedRow, presences) {
     console.log('Relations: ', relations);
 }
 
+function removeTextFromStr(strToBeParsed) {
+    // si rimuove tutti i caratteri ma non le sottostringhe delle variabili, nomi delle funzioni ed unità di misura
+    let varConcatenated = Object.keys(variables).concat(functionNames).concat(currencies).concat(specialOperator).join("|");
+    let re = varConcatenated ? `\\b(?!${varConcatenated})\\b([a-zA-Z])+` : '[a-zA-Z]+';
+    return strToBeParsed.replace(new RegExp(re, "g"), "").replace(/\s+/g, '').trim();
+}
+
 function parse(el) {
     let strToBeParsed = el.innerHTML.trim();       // ciò che deve essere parsato
     // header
@@ -168,13 +175,9 @@ function parse(el) {
                 variables[match[1]] = match[2];
             }
         }
-        // commenti, headers
-    } else {
-        // si rimuove tutti i caratteri ma non le sottostringhe delle variabili, nomi delle funzioni ed unità di misura (TODO: monete...)
-        let varConcatenated = Object.keys(variables).concat(functionNames).concat(currencies).concat(specialOperator).join("|");
-        let re = varConcatenated ? `\\b(?!${varConcatenated})\\b([a-zA-Z])+` : '[a-zA-Z]+';
-        strToBeParsed = strToBeParsed.replace(new RegExp(re, "g"), "").replace(/\s+/g, '').trim();
     }
+    strToBeParsed = removeTextFromStr(strToBeParsed);
+
 
     expressions[selectedRow] = strToBeParsed.replace(/[\&;]/g, '').trim() || 0;
     console.log(`Stringa: ${el.innerHTML} - parsata: ${strToBeParsed}`, expressions);
