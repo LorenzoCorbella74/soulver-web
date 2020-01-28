@@ -2,7 +2,7 @@
   "name": "soulver-web",
   "version": "0.1.0",
   "description": "basic remake for the web of the soulver app for mac made with vanilla javascript",
-  "main": "app.js",
+  "main": "index.html",
   "scripts": {
   },
   "keywords": [

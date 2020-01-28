@@ -9,8 +9,6 @@ let specialOperator = [/* 'in' */];   // TODO: escludere in regex in(cludere) ad
 
 // MOCK taken from https://fixer.io/documentation
 let api = {
-    "success": true,
-    "timestamp": 1519296206,
     "base": "EUR",
     "date": "2020-01-28",
     "rates": {
@@ -22,7 +20,7 @@ let api = {
         "JPY": 132.360679,
         "USD": 1.23396
     }
-}
+};
 
 function createRowFromTemplate () {
     var temp = document.getElementsByTagName("template")[0];
@@ -119,7 +117,7 @@ function highLite (el) {
 function onKeyPress (e, el) {
     // enter
     if (e.keyCode == 13) {
-        e.preventDefault(); // ferma l'evento
+        e.preventDefault(); // stop event
         if (selectedRow + 1 === rows) {
             createRowFromTemplate();
         } else {
@@ -152,7 +150,14 @@ function parse (el) {
         // commento
     } else if (/[@][\sa-zA-Z]*/g.test(strToBeParsed)) {
         strToBeParsed = strToBeParsed.replace(/[@][\sa-zA-Z]*/g, "").trim();
+    } else if (/total/g.test(strToBeParsed)) {
+        let out='0';
+        for (var i = 0; i <= rows-2; i++) {
+            out += `+ R${i}`
+        }
+        strToBeParsed = out;
     }
+
     // se c'è una assegnazione si mette
     if (/[=]/.test(strToBeParsed)) {
         // TODO: gestione espressione dentro il DX di una assegnazione...
@@ -174,7 +179,7 @@ function parse (el) {
     console.log(`Stringa: ${el.innerHTML} - parsata: ${strToBeParsed}`, expressions);
 
     // se ci stanno Rx si definiscono le relazioni
-    let presences = el.innerHTML.match(/(^|[^\w]\b)R\d/g);
+    let presences = el.innerHTML !=='total' ? el.innerHTML.match(/(^|[^\w]\b)R\d/g) : strToBeParsed.match(/(^|[^\w]\b)R\d/g).map(e=> e.replace(/\+/g,''));
     setRelation(selectedRow, presences)
 
     try {
@@ -189,7 +194,7 @@ function parse (el) {
 }
 
 function createCurrencies () {
-    math.createUnit(api.base,{ aliases: ['€']})
+    math.createUnit(api.base, { aliases: ['€'] })
     Object.keys(api.rates)
         .filter(function (currency) {
             return currency !== api.base
@@ -197,7 +202,6 @@ function createCurrencies () {
         .forEach(function (currency) {
             math.createUnit(currency, math.unit(1 / api.rates[currency], api.base))
         })
-
     // return an array with all available currencies
     return Object.keys(api.rates).concat(api.base)
 }
@@ -210,8 +214,7 @@ function createCurrencies () {
 function format (value) {
     const precision = 14
     return math.format(value, precision)
-  }
-
+}
 
 let currencies = createCurrencies()
 
