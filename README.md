@@ -10,12 +10,12 @@ A basic remake for the web of the [Soulver App](https://www.acqualia.com/soulver
 
 ## Features and TODOs
 - [x] Basic styling for numbers, currencies, comments (by writing `@ textofthecomment`) and bold headers (by writing `# textoftheheader`)
-- [x] expressions parsing, math functions, variables, assumptions, units (right now EUR, USD and GBP are supported) and math operations thanks to [math.js](https://mathjs.org/)
+- [x] expressions parsing, math functions, variables, assumptions, units (right now `EUR`, `USD` and `GBP` are supported) and math operations thanks to [math.js](https://mathjs.org/)
 - [x] binding with rows results (by writing `R and rownumber`) with auto update
 - [x] writing `total` in a blank new row sums the previous results (with auto update)
 
 ## Demo
-To test things locally just serve the root by a web server or [check the app online](https://festive-lalande-0b44f6.netlify.com/)
+To test things locally just serve the root with a web server or [check the app online](https://festive-lalande-0b44f6.netlify.com/)
 
 ## Bugs
 - Uhm, many...!
