@@ -1,15 +1,16 @@
 {
   "name": "soulver-web",
-  "version": "0.0.1",
-  "description": "remake of the soulver app with vanilla javascript",
+  "version": "0.1.0",
+  "description": "basic remake for the web of the soulver app for mac made with vanilla javascript",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "soulver",
     "vanilla",
-    "javascript"
+    "javascript",
+    "natural language",
+    "spreadsheet"
   ],
   "author": "Lorenzo Corbella",
   "license": "ISC"

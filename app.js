@@ -5,6 +5,9 @@ let variables = {};
 let results = [];
 let relations = []; // indica in quale riga stanno i totali per poi ricaricare 
 let functionNames = ['sin', 'cos', 'tan', 'exp', 'sqrt', 'ceil', 'floor', 'abs', 'acos', 'asin', 'atan', 'log', 'round'];
+let specialOperator = [/* 'in' */];   // TODO: escludere in regex in(cludere) ad esempio...
+
+// MOCK taken from https://fixer.io/documentation
 let api = {
     "success": true,
     "timestamp": 1519296206,
@@ -20,7 +23,6 @@ let api = {
         "USD": 1.23396
     }
 }
-let specialOperator = ['in','€']; 
 
 function createRowFromTemplate () {
     var temp = document.getElementsByTagName("template")[0];
@@ -108,7 +110,7 @@ function highLite (el) {
     el.previousElementSibling.innerHTML = el.innerHTML.trim()
         .replace(/(?:^|[^Ra-z])((\d*\.)?\d+)(?![0-9a-z*\/])/g, "<span class='numbers'> $1</span>")   //solo numeri con '.' come separatore decimale
         .replace(/(^|[^\w]\b)R\d/g, "<span class='result-cell'>$&</span>")   // solo totali di riga: R0, R1,..
-        .replace(/(€|\$)/g, "<span class='currencies'>$1</span>")
+        .replace(/(EUR|USD|GBP)/g, "<span class='currencies'>$1</span>")
         .replace(/\#(.*)/g, "<span class='headers'>#$1</span>")
         .replace(/\@(.*)/g, "<span class='comments'>@$1</span>");
     parse(el);
@@ -128,9 +130,9 @@ function onKeyPress (e, el) {
     if (e.keyCode == 8 && selectedRow != 0 && el.innerHTML.length == 0) {
         focusRow(selectedRow - 1);
     }
-    // + as first element of row
+    // + as first element of row producing a 'result cell'
     if (e.code === 'BracketRight' && el.innerHTML.length === 0 && rows > 0) {
-        e.preventDefault(); // non scrive il +
+        e.preventDefault(); // no +
         el.innerHTML = `R${selectedRow - 1}`;
         el.previousElementSibling.innerHTML = `<span class="result-cell">R${selectedRow - 1}</span>`;
         setCaretOnLastPosition(el);
@@ -165,10 +167,10 @@ function parse (el) {
         // si rimuove tutti i caratteri ma non le sottostringhe delle variabili, nomi delle funzioni ed unità di misura (TODO: monete...)
         let varConcatenated = Object.keys(variables).concat(functionNames).concat(currencies).concat(specialOperator).join("|");
         let re = varConcatenated ? `\\b(?!${varConcatenated})\\b([a-zA-Z])+` : '[a-zA-Z]+';
-        strToBeParsed = strToBeParsed.replace(new RegExp(re, "g"), "").replace(/\s+/g, '');
+        strToBeParsed = strToBeParsed.replace(new RegExp(re, "g"), "").replace(/\s+/g, '').trim();
     }
 
-    expressions[selectedRow] = strToBeParsed.replace(/[\&;]/g, '');
+    expressions[selectedRow] = strToBeParsed.replace(/[\&;]/g, '').trim();
     console.log(`Stringa: ${el.innerHTML} - parsata: ${strToBeParsed}`, expressions);
 
     // se ci stanno Rx si definiscono le relazioni
@@ -186,7 +188,6 @@ function parse (el) {
     }
 }
 
-// MOCK taken from https://fixer.io/documentation
 function createCurrencies () {
     math.createUnit(api.base,{ aliases: ['€']})
     Object.keys(api.rates)
