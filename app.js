@@ -38,7 +38,7 @@ function updateRelated () {
                         updateResultInRow(results[index] ? results[index] : '', index); // si aggiorna la riga corrente
                     } catch (error) {
                         updateResultInRow('', index);
-                        console.log('Completing expression', error);
+                        console.log('Completing expression');
                     }
                 }
             });
@@ -90,7 +90,7 @@ function selectRow (el) {
 function highLite (el) {
     el.previousElementSibling.innerHTML = el.innerHTML.trim()
         //.replace(/(\d+)/g, "<span class='numbers'>$1</span>") 
-        .replace(/(?:^|[^Ra-z])(\d+)(?![0-9a-z])/g, "<span class='numbers'>$1</span>")   //solo numeri
+        .replace(/(?:^|[^Ra-z])(\d+)(?![0-9a-z])/g, "<span class='numbers'> $1</span>")   //solo numeri
         .replace(/(^|[^\w]\b)R\d/g, "<span class='result-cell'>$&</span>")   // solo totali di riga: R0, R1,..
         .replace(/(€|\$)/g, "<span class='currencies'>$1</span>")
         .replace(/\#(.*)/g, "<span class='headers'>#$1</span>")
@@ -116,7 +116,7 @@ function onKeyPress (e, el) {
     if (e.code === 'BracketRight' && el.innerHTML.length === 0 && rows > 0) {
         e.preventDefault(); // non scrive il +
         el.innerHTML = `R${selectedRow - 1}`;
-        el.previousElementSibling.innerHTML = `<span class="result-cell R${selectedRow - 1}">R${selectedRow - 1}</span>`;
+        el.previousElementSibling.innerHTML = `<span class="result-cell">R${selectedRow - 1}</span>`;
         setCaretOnLastPosition(el);
     }
 }
@@ -146,7 +146,8 @@ function parse (el) {
         let re = varConcatenated ? `\\b(?!${varConcatenated})\\b([a-zA-Z])+` : '[a-zA-Z]+';
         strToBeParsed = strToBeParsed.replace(new RegExp(re, "g"), "").replace(/\s+/g, '');
     }
-    expressions[selectedRow] = strToBeParsed;
+
+    expressions[selectedRow] = strToBeParsed.replace(/[\&;]/g, '');
     console.log(`Stringa: ${el.innerHTML} - parsata: ${strToBeParsed}`, expressions);
 
     // se ci stanno Rx si definiscono le relazioni
@@ -160,7 +161,7 @@ function parse (el) {
         createOrUpdateResult(results[selectedRow] ? results[selectedRow] : ''); // si aggiorna la riga corrente
     } catch (error) {
         createOrUpdateResult('');
-        console.log('Completing expression', error);
+        console.log('Completing expression');
     }
 }
 
