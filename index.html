@@ -12,11 +12,14 @@
 
   <template>
     <div class="row">
+      <!-- MOSTRATO -->
       <div class="formatted"></div>
+      <!-- NASCOSTO -->
       <div class="editable" contenteditable oninput="highLite(this)" onkeydown="onKeyPress(event, this)"
         onfocus="selectRow(this)"></div>
     </div>
   </template>
+
   <template>
     <div class="row">
       <div class="result"></div>

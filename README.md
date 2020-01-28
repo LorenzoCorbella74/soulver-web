@@ -5,15 +5,16 @@
 ![](https://img.shields.io/github/package-json/v/LorenzoCorbella74/soulver-web)
 
 A web remake of the [Soulver App](https://www.acqualia.com/soulver/) for Mac, made for studying purpose. 
-For the time being it supports:
+For the time being soulver-web supports:
 
 - [x] Basic styling for numbers, currencies, comments (@) and headers (#)
-- [ ] Parser engine
+- [X] expressions parsing, math functions, variables, assumtions and math operations thanks to [math.js](https://mathjs.org/)
+
 
 
 ## Documentation
-```javascript
-console.log('coming soon...');
+```bash
+
 
 ```
 
@@ -23,7 +24,7 @@ console.log('coming soon...');
 
 ## Built With
 
-Vanilla Javascript
+Vanilla Javascript, [math.js](https://mathjs.org/)
 
 ## License
 
