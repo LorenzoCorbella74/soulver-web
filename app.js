@@ -108,9 +108,9 @@ function highLite (el) {
     el.previousElementSibling.innerHTML = el.innerHTML.trim()
         .replace(/(?:^|[^Ra-z])((\d*\.)?\d+)(?![0-9a-z*\/])/g, "<span class='numbers'> $1</span>")   //solo numeri con '.' come separatore decimale
         .replace(/(^|[^\w]\b)R\d/g, "<span class='result-cell'>$&</span>")   // solo totali di riga: R0, R1,..
-        .replace(/(EUR|USD|GBP)/g, "<span class='currencies'>$1</span>")
+        .replace(/(€|EUR|USD|GBP)/g, "<span class='currencies'>$1</span>")
         .replace(/\#(.*)/g, "<span class='headers'>#$1</span>")
-        .replace(/\@(.*)/g, "<span class='comments'>@$1</span>");
+        .replace(/\/\/(.*)/g, "<span class='comments'>//$1</span>");
     parse(el);
 }
 
@@ -220,3 +220,45 @@ let currencies = createCurrencies()
 
 // si crea la 1° riga
 createRowFromTemplate()
+
+
+/* 
+
+
+    TODO: 
+
+    [] classe per la gestione del caret
+    https://stackoverflow.com/questions/6249095/how-to-set-caretcursor-position-in-contenteditable-element-div
+    https://stackoverflow.com/questions/10778291/move-the-cursor-position-with-javascript
+
+    [] classe per la gestione della view e classe per la gestione del parsing e calcoli (in file separati)
+
+    [] commenti non con  @ ma con //, : label
+    [] parsare i k e i M alla sx dei numeri per moltiplicare il numero (SI notation) 
+    [] formattazione di numeri con separazione per migliaia e virgola
+    [] colori custom definiti nelle preferenze tramite modale
+    [] totale in fondo alla pagina
+
+    [] percentuali
+        30 +/- 20%
+        40 come % di 50 (N as a % of N)
+        20 che % è di 50 (N is what % of N)
+    
+    [] matematica per le date
+        Today + 3 weeks 2 days
+        3:35 am + 9 hours 20 minutes
+        From March 12 to July 30
+
+    [] conversione tra unità di misura ( trmite in e nuova_unità_misura)
+
+    [] json export / inport tramite modale
+    [] variabili globali
+
+    [] progressive web app ed electron
+
+    [] internalizzazione e formati numerici
+
+
+    https://stackoverflow.com/questions/18884262/regular-expression-match-string-not-preceded-by-another-string-javascript
+
+*/

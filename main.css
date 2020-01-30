@@ -17,8 +17,11 @@ body {
 }
 
 .content {
-    /* width: 100vw; */
-    /* height: 100vh; */
+    display: flex;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    width: 100%;
 }
 
 .left {
@@ -38,8 +41,8 @@ body {
     top: 0;
     height: 100vh;
     width: 30vw;
-    background-color: #f3f1f5;
-    border-left: 1px solid rgb(195, 195, 195);
+    background-color: #f4f5f5; 
+    border-left: 1px solid rgb(220, 220, 220);
     padding-top: 60px;
 }
 
@@ -59,7 +62,7 @@ body {
 .result-cell {
     color: white;
 /*     padding: 8px; */
-    background-color: #2196F3;
+    background-color: #0187f7;
     border-radius: 6px;
 }
 
