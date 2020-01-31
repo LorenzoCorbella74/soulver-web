@@ -22,7 +22,7 @@ let api = {
     }
 };
 
-function createRowFromTemplate() {
+function createRowFromTemplate () {
     var temp = document.getElementsByTagName("template")[0];
     var clone = temp.content.cloneNode(true);
     var left = document.querySelector('.content>.left')
@@ -30,7 +30,7 @@ function createRowFromTemplate() {
     focusOnCreatedRow();
 }
 
-function createOrUpdateResult(resultStr) {
+function createOrUpdateResult (resultStr) {
     // se non esiste si crea
     if (!document.querySelectorAll('.content>.right>.row>.result')[selectedRow]) {
         var temp = document.getElementsByTagName("template")[1];
@@ -43,7 +43,8 @@ function createOrUpdateResult(resultStr) {
     updateRelated()
 }
 
-function updateRelated() {
+// si aggiorna ogni riga in funzione della presenza delle variabili presenti in 'relations'
+function updateRelated () {
     for (let numRow = 0; numRow < rows; numRow++) {
         let who = relations.map(e => e && (e.includes(`R${numRow}`) || Object.keys(variables).findIndex(a => a == e) > -1)); // FIXME: da rivedere...
         if (who && who.length > 0) {
@@ -63,23 +64,23 @@ function updateRelated() {
     }
 }
 
-function updateResultInRow(resultStr, row) {
+function updateResultInRow (resultStr, row) {
     document.querySelectorAll('.content>.right>.row>.result')[row].innerText = resultStr;
 }
 
-function focusOnCreatedRow() {
+function focusOnCreatedRow () {
     let createdEditable = Array.from(document.querySelectorAll(".row>div:nth-child(2)"))[rows];
     createdEditable.focus();
     rows++;
 }
 
-function focusRow(num) {
+function focusRow (num) {
     let createdEditable = Array.from(document.querySelectorAll(".row>div:nth-child(2)"))[num];
     createdEditable.focus();
     setCaretOnLastPosition(createdEditable);
 }
 
-function setCaretOnLastPosition(el) {
+function setCaretOnLastPosition (el) {
     var range = document.createRange();
     var sel = window.getSelection();
     let selectedRowText = el.childNodes[0];
@@ -91,7 +92,7 @@ function setCaretOnLastPosition(el) {
     }
 }
 
-function selectRow(el) {
+function selectRow (el) {
     let createdEditable = Array.from(document.querySelectorAll(".row>div:nth-child(2)"));
     for (let i = 0; i < createdEditable.length; i++) {
         const element = createdEditable[i];
@@ -103,18 +104,35 @@ function selectRow(el) {
 }
 
 // SOURCE: https://stackoverflow.com/questions/41884969/replacing-content-in-contenteditable-box-while-typing
-function highLite(el) {
-    el.previousElementSibling.innerHTML = el.innerHTML.trim()
-        .replace(/(?:^|[^Ra-z])((\d*\.)?\d+)(?![0-9a-z*\/])/g, "<span class='numbers'> $1</span>")   //solo numeri con '.' come separatore decimale
-        .replace(/(^|[^\w]\b)R\d/g, "<span class='result-cell'>$&</span>")   // solo totali di riga: R0, R1,..
-        .replace(/(€|EUR|USD|GBP)/g, "<span class='currencies'>$1</span>")
-        .replace(/\#(.*)/g, "<span class='headers'>#$1</span>")
-        .replace(/total/g, "<span class='headers'>total</span>")
-        .replace(/\@(.*)/g, "<span class='comments'>@$1</span>");
+// REPLACE: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace
+function highLite (el) {
+    if (el.innerHTML.indexOf('#') !== -1) {
+        el.previousElementSibling.innerHTML = el.innerHTML.trim()
+            .replace(/\#(.*)/g, "<span class='headers'>#$1</span>")
+    } else {
+        if (el.innerHTML.indexOf('//') !== -1) {
+            el.previousElementSibling.innerHTML = el.innerHTML.trim()
+                .replace(/(?<!#.*)\b((\d*[\.,])?\d+)(?=.+\/\/\w*)/g, "<span class='numbers'>$1</span>")   //solo numeri con '.' come separatore decimale
+                .replace(/(?<!#.*)\bR[0-9]{1,2}\b(?=.+\/\/.*)/g, "<span class='result-cell'>$&</span>")   // solo totali di riga: R0, R1,..
+                .replace(/(EUR|USD|GBP)\b(?=.+\/\/\w*)/g, "<span class='currencies'>$1</span>")
+                .replace(/total/g, "<span class='headers'>total</span>")
+                .replace(/\/\/(.*)/g, "<span class='comments'>//$1</span>")
+                .replace(/[kM](?=.+\/\/\w*)/g, "<span class='units'>$1</span>")       // non funzionz (?<=\W\d+)[kM](?=.+\/\/\w*)
+        } else {
+            el.previousElementSibling.innerHTML = el.innerHTML.trim()
+                .replace(/(?<!#.*)\b((\d*[\.,])?\d+)/g, "<span class='numbers'>$1</span>")   //solo numeri con '.' come separatore decimale
+                .replace(/(?<!#.*)\bR[0-9]{1,2}\b/g, "<span class='result-cell'>$&</span>")   // solo totali di riga: R0, R1,..
+                .replace(/(EUR|USD|GBP)\b/g, "<span class='currencies'>$1</span>")
+                .replace(/total/g, "<span class='headers'>total</span>")
+                .replace(/\/\/(.*)/g, "<span class='comments'>//$1</span>")
+                .replace(/([kM])/g, "<span class='units'>$1</span>")  // non funziona.... (?<=\W\d+)([kM])
+        }
+    }
+
     parse(el);
 }
 
-function onKeyPress(e, el) {
+function onKeyPress (e, el) {
     // enter
     if (e.keyCode == 13) {
         e.preventDefault(); // stop event
@@ -132,37 +150,52 @@ function onKeyPress(e, el) {
     if (e.code === 'BracketRight' && el.innerHTML.length === 0 && rows > 0) {
         e.preventDefault(); // no +
         el.innerHTML = `R${selectedRow - 1}`;
-        el.previousElementSibling.innerHTML = `<span class="result-cell">R${selectedRow - 1}</span>`;
+        el.previousElementSibling.innerHTML = `<span class="result-cell">R${selectedRow - 1}</span>`;       // TODO: qua si può attaccare un onmousemove="showToolTipValue(this)""
         setCaretOnLastPosition(el);
     }
 }
 
-function setRelation(selectedRow, presences) {
+// assegna ad ogni riga le variabili presenti
+function setRelation (selectedRow, presences) {
     relations[selectedRow] = presences;
     console.log('Relations: ', relations);
 }
 
-function removeTextFromStr(strToBeParsed) {
+function removeTextFromStr (strToBeParsed) {
     // si rimuove tutti i caratteri ma non le sottostringhe delle variabili, nomi delle funzioni ed unità di misura
     let varConcatenated = Object.keys(variables).concat(functionNames).concat(currencies).concat(specialOperator).join("|");
     let re = varConcatenated ? `\\b(?!${varConcatenated})\\b([a-zA-Z])+` : '[a-zA-Z]+';
     return strToBeParsed.replace(new RegExp(re, "g"), "").replace(/\s+/g, '').trim();
 }
 
-function parse(el) {
-    let strToBeParsed = el.innerHTML.trim();       // ciò che deve essere parsato
-    // header
-    if (/[#]/g.test(strToBeParsed)) {
-        strToBeParsed = '';
-        // commento
-    } else if (/[@][\sa-zA-Z]*/g.test(strToBeParsed)) {
-        strToBeParsed = strToBeParsed.replace(/[@][\sa-zA-Z]*/g, "").trim();
+function parse (el) {
+    let strToBeParsed = el.innerHTML.trim();
+
+    if (/#(.*)/g.test(strToBeParsed)) {
+        strToBeParsed = ''; // si rimuovono gli header
+
+    } else if (/\/\/(.*)/g.test(strToBeParsed)) {
+        strToBeParsed = strToBeParsed.replace(/\/\/(.*)/g, "").trim(); // si rimuovono i commenti
     } else if (/total/g.test(strToBeParsed)) {
         let out = '0';
         for (var i = 0; i <= rows - 2; i++) {
             out += `+ R${i}`
         }
         strToBeParsed = out;
+    }
+
+    // k dopo un numero *1000
+    if (/(?<=\d)([k])/g.test(strToBeParsed)) {
+        strToBeParsed = strToBeParsed.replace(/(?<=\d)([k])/g, "*1000").trim();
+    }
+    // M dopo un numero *1.000.000
+    if (/(?<=\d)([M])/g.test(strToBeParsed)) {
+        strToBeParsed = strToBeParsed.replace(/(?<=\d)([M])/g, "*1000000").trim();
+    }
+
+    // + al posto di 'più'
+    if (/(\b(pi\ù)\B)/g.test(strToBeParsed)) {
+        strToBeParsed = strToBeParsed.replace(/(\b(pi\ù)\B)/g, "+").trim();
     }
 
     // se c'è una assegnazione si mette
@@ -175,6 +208,23 @@ function parse(el) {
             }
         }
     }
+
+    // 10.5% of 100.5
+    // prendere solo quello che si vuole
+    // SOURCE: https://stackoverflow.com/questions/12812902/javascript-regular-expression-matching-cityname
+    let reg = /(\d*[\.,])?(\d+)(\s?%)(\s+)(di|of)(\s+)(\d*[\.,])?(\d+\s?)/g;
+    let match = reg.exec(strToBeParsed);
+    // console.log(match);
+    if (match) {
+        let num = match[1] ? match[1] + match[2] : match[2];
+        let dest = match[7] ? match[7] + match[8] : match[8];
+        let sostituzione = (dest * (num / 100)).toString();
+        strToBeParsed = strToBeParsed.replace(/(\d*[\.,])?(\d+)(\s?%)(\s+)(di|of)(\s+)(\d*[\.,])?(\d+\s?)/g, sostituzione);
+    }
+
+
+    // +/- 10 %
+
     strToBeParsed = removeTextFromStr(strToBeParsed);
 
 
@@ -182,9 +232,10 @@ function parse(el) {
     console.log(`Stringa: ${el.innerHTML} - parsata: ${strToBeParsed}`, expressions);
 
     // se ci stanno Rx si definiscono le relazioni
-    let relRegStr = `(^|[^\w]\b)(R\d|${Object.keys(variables).join('|')})`
+    let relRegStr = `(^|[^\\w]\\b)(R\\d|${Object.keys(variables).join('|')})`
     let relReg = new RegExp(relRegStr, "g")
     let presences = el.innerHTML !== 'total' ? el.innerHTML.match(relReg) : strToBeParsed.match(relReg).map(e => e.replace(/\+/g, ''));
+    expressions[selectedRow] = strToBeParsed.replace(/^0\+/g, '').trim() || 0;  // si rimuove lo 0+ fix somme con unità
     setRelation(selectedRow, presences)
 
     try {
@@ -198,7 +249,7 @@ function parse(el) {
     }
 }
 
-function createCurrencies() {
+function createCurrencies () {
     math.createUnit(api.base, { aliases: ['€'] })
     Object.keys(api.rates)
         .filter(function (currency) {
@@ -211,7 +262,7 @@ function createCurrencies() {
     return Object.keys(api.rates).concat(api.base)
 }
 
-function format(value) {
+function format (value) {
     const precision = 14
     return math.format(value, precision)
 }
@@ -222,10 +273,10 @@ let currencies = createCurrencies()
 createRowFromTemplate()
 
 
-/* 
+/*
 
 
-    TODO: 
+    TODO:
 
     [] classe per la gestione del caret
     https://stackoverflow.com/questions/6249095/how-to-set-caretcursor-position-in-contenteditable-element-div
@@ -233,23 +284,24 @@ createRowFromTemplate()
 
     [] classe per la gestione della view e classe per la gestione del parsing e calcoli (in file separati)
 
-    [] commenti non con  @ ma con //, : label
-    [] parsare i k e i M alla sx dei numeri per moltiplicare il numero (SI notation) 
+    [x] commenti non con  @ ma con //, : label
+    [x] parsare i k e i M alla sx dei numeri per moltiplicare il numero (SI notation)
     [] formattazione di numeri con separazione per migliaia e virgola
     [] colori custom definiti nelle preferenze tramite modale
     [] totale in fondo alla pagina
 
     [] percentuali
-        30 +/- 20%
+        NUM +/- 20%
         40 come % di 50 (N as a % of N)
         20 che % è di 50 (N is what % of N)
-    
+    [x] 5% di NUM
+
     [] matematica per le date
         Today + 3 weeks 2 days
         3:35 am + 9 hours 20 minutes
         From March 12 to July 30
 
-    [] conversione tra unità di misura ( trmite in e nuova_unità_misura)
+    [] conversione tra unità di misura (tramite 'in' e nuova_unità_misura)
 
     [] json export / inport tramite modale
     [] variabili globali
@@ -261,4 +313,26 @@ createRowFromTemplate()
 
     https://stackoverflow.com/questions/18884262/regular-expression-match-string-not-preceded-by-another-string-javascript
 
+*/
+
+/*
+    SOURCE: https://caniuse.com/#feat=js-regexp-lookbehind
+    Commenti e tutto quello che c'è dopo:
+    \/\/(.*)
+
+    Numeri: tutti i numeri con separatore virgola o punto non seguiti da // o non preceduti da #
+    (?<!#.*)\b((\d*[\.,])?\d+)\b 	// se non ci stanno i //
+    (?<!#.*)\b((\d*[\.,])?\d+)\b(?=.+\/\/\w*)	altrimenti
+
+    Risultati
+    (?<!#.*)\bR[0-9]{1,2}\b		se non ci stanno i //
+    (?<!#.*)\bR[0-9]{1,2}\b(?=.+\/\/.*)	altrimenti
+
+    currencies/
+    (?<!#.*)\b(mele|pere)\b
+
+    k, M
+
+    header
+    #(.*)
 */

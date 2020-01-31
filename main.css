@@ -89,6 +89,11 @@ body {
     font-weight: bold;
 }
 
+.units {
+    color: rgb(31, 113, 221);
+    font-weight: bold;
+}
+
 .currencies {
     color: #F012BE;
     font-weight: bold;
