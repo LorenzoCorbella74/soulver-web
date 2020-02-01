@@ -21,7 +21,7 @@ A basic remake for the web of the [Soulver App](https://www.acqualia.com/soulver
 - [ ] Percentages expressed with natural functions
 - [ ] Number formatting
 - [ ] Import in .json and save in .txt/.json format
-- [ ] Black theme
+- [x] Black theme
 
 ## Demo
 To test things locally just serve the root with a web server or [check the app online](https://festive-lalande-0b44f6.netlify.com/)
