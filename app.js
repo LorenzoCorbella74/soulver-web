@@ -22,7 +22,29 @@ let api = {
     }
 };
 
-function createRowFromTemplate () {
+let toggle = document.querySelector('.toggle-theme');
+
+// Turn the theme of if the 'dark-theme' key exists in localStorage
+if (localStorage.getItem('dark-theme')) {
+    document.body.classList.add('dark-theme');
+    toggle.innerText = 'Off';
+}
+
+toggle.addEventListener('click', function (e) {
+    e.preventDefault();
+
+    if (document.body.classList.contains('dark-theme')) {
+        document.body.classList.remove('dark-theme');
+        toggle.innerText = 'On';
+        localStorage.removeItem('dark-theme');
+    } else {
+        document.body.classList.add('dark-theme');
+        toggle.innerText = 'Off';
+        localStorage.setItem('dark-theme', true);
+    }
+});
+
+function createRowFromTemplate() {
     var temp = document.getElementsByTagName("template")[0];
     var clone = temp.content.cloneNode(true);
     var left = document.querySelector('.content>.left')
@@ -30,7 +52,7 @@ function createRowFromTemplate () {
     focusOnCreatedRow();
 }
 
-function createOrUpdateResult (resultStr) {
+function createOrUpdateResult(resultStr) {
     // se non esiste si crea
     if (!document.querySelectorAll('.content>.right>.row>.result')[selectedRow]) {
         var temp = document.getElementsByTagName("template")[1];
@@ -44,7 +66,7 @@ function createOrUpdateResult (resultStr) {
 }
 
 // si aggiorna ogni riga in funzione della presenza delle variabili presenti in 'relations'
-function updateRelated () {
+function updateRelated() {
     for (let numRow = 0; numRow < rows; numRow++) {
         let who = relations.map(e => e && (e.includes(`R${numRow}`) || Object.keys(variables).findIndex(a => a == e) > -1)); // FIXME: da rivedere...
         if (who && who.length > 0) {
@@ -64,23 +86,23 @@ function updateRelated () {
     }
 }
 
-function updateResultInRow (resultStr, row) {
+function updateResultInRow(resultStr, row) {
     document.querySelectorAll('.content>.right>.row>.result')[row].innerText = resultStr;
 }
 
-function focusOnCreatedRow () {
+function focusOnCreatedRow() {
     let createdEditable = Array.from(document.querySelectorAll(".row>div:nth-child(2)"))[rows];
     createdEditable.focus();
     rows++;
 }
 
-function focusRow (num) {
+function focusRow(num) {
     let createdEditable = Array.from(document.querySelectorAll(".row>div:nth-child(2)"))[num];
     createdEditable.focus();
     setCaretOnLastPosition(createdEditable);
 }
 
-function setCaretOnLastPosition (el) {
+function setCaretOnLastPosition(el) {
     var range = document.createRange();
     var sel = window.getSelection();
     let selectedRowText = el.childNodes[0];
@@ -92,7 +114,7 @@ function setCaretOnLastPosition (el) {
     }
 }
 
-function selectRow (el) {
+function selectRow(el) {
     let createdEditable = Array.from(document.querySelectorAll(".row>div:nth-child(2)"));
     for (let i = 0; i < createdEditable.length; i++) {
         const element = createdEditable[i];
@@ -105,7 +127,7 @@ function selectRow (el) {
 
 // SOURCE: https://stackoverflow.com/questions/41884969/replacing-content-in-contenteditable-box-while-typing
 // REPLACE: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace
-function highLite (el) {
+function highLite(el) {
     if (el.innerHTML.indexOf('#') !== -1) {
         el.previousElementSibling.innerHTML = el.innerHTML.trim()
             .replace(/\#(.*)/g, "<span class='headers'>#$1</span>")
@@ -132,7 +154,7 @@ function highLite (el) {
     parse(el);
 }
 
-function onKeyPress (e, el) {
+function onKeyPress(e, el) {
     // enter
     if (e.keyCode == 13) {
         e.preventDefault(); // stop event
@@ -150,25 +172,25 @@ function onKeyPress (e, el) {
     if (e.code === 'BracketRight' && el.innerHTML.length === 0 && rows > 0) {
         e.preventDefault(); // no +
         el.innerHTML = `R${selectedRow - 1}`;
-        el.previousElementSibling.innerHTML = `<span class="result-cell">R${selectedRow - 1}</span>`;       // TODO: qua si può attaccare un onmousemove="showToolTipValue(this)""
+        el.previousElementSibling.innerHTML = `<span class="result-cell">R${selectedRow - 1}</span>`; // TODO: qua si può attaccare un onmousemove="showToolTipValue(this)""
         setCaretOnLastPosition(el);
     }
 }
 
 // assegna ad ogni riga le variabili presenti
-function setRelation (selectedRow, presences) {
+function setRelation(selectedRow, presences) {
     relations[selectedRow] = presences;
     console.log('Relations: ', relations);
 }
 
-function removeTextFromStr (strToBeParsed) {
+function removeTextFromStr(strToBeParsed) {
     // si rimuove tutti i caratteri ma non le sottostringhe delle variabili, nomi delle funzioni ed unità di misura
     let varConcatenated = Object.keys(variables).concat(functionNames).concat(currencies).concat(specialOperator).join("|");
     let re = varConcatenated ? `\\b(?!${varConcatenated})\\b([a-zA-Z])+` : '[a-zA-Z]+';
     return strToBeParsed.replace(new RegExp(re, "g"), "").replace(/\s+/g, '').trim();
 }
 
-function parse (el) {
+function parse(el) {
     let strToBeParsed = el.innerHTML.trim();
 
     if (/#(.*)/g.test(strToBeParsed)) {
@@ -209,24 +231,32 @@ function parse (el) {
         }
     }
 
-    // 10.5% of 100.5
-    // prendere solo quello che si vuole
-    // SOURCE: https://stackoverflow.com/questions/12812902/javascript-regular-expression-matching-cityname
+    // 10.5% of 100.5   TODO: 10.5% di (espressione) non funziona
+    // SOURCE: https://stackoverflow.com/questions/12812902/javascript-regular-expression-matching-cityname // come prendere solo parti specifiche
     let reg = /(\d*[\.,])?(\d+)(\s?%)(\s+)(di|of)(\s+)(\d*[\.,])?(\d+\s?)/g;
-    let match = reg.exec(strToBeParsed);
-    // console.log(match);
-    if (match) {
+    while (match = reg.exec(strToBeParsed)) {
+        // console.log(match);
         let num = match[1] ? match[1] + match[2] : match[2];
         let dest = match[7] ? match[7] + match[8] : match[8];
-        let sostituzione = (dest * (num / 100)).toString();
+        let sostituzione = (Number(dest) * (Number(num) / 100)).toString();
         strToBeParsed = strToBeParsed.replace(/(\d*[\.,])?(\d+)(\s?%)(\s+)(di|of)(\s+)(\d*[\.,])?(\d+\s?)/g, sostituzione);
     }
 
-
-    // +/- 10 %
+    // +/- 10 % TODO: (2 + 22%)% non funziona!
+    let add = /\+\s?(\d*[\.,])?(\d+\s?)(%)/g;
+    while (match = add.exec(strToBeParsed)) {
+        let num = match[1] ? match[1] + match[2] : match[2];
+        let sostituzione = ((Number(num) + 100) / 100).toString();
+        strToBeParsed = strToBeParsed.replace(/\+\s?(\d*[\.,])?(\d+\s?)(%)/g, `*${sostituzione}`);
+    }
+    let sub = /\-\s?(\d*[\.,])?(\d+\s?)(%)/g;
+    while (match = sub.exec(strToBeParsed)) {
+        let num = match[1] ? match[1] + match[2] : match[2];
+        let sostituzione = ((100 - Number(num)) / 100).toString();
+        strToBeParsed = strToBeParsed.replace(/\-\s?(\d*[\.,])?(\d+\s?)(%)/g, `*${sostituzione}`);
+    }
 
     strToBeParsed = removeTextFromStr(strToBeParsed);
-
 
     expressions[selectedRow] = strToBeParsed.replace(/[\&;]/g, '').trim() || 0;
     console.log(`Stringa: ${el.innerHTML} - parsata: ${strToBeParsed}`, expressions);
@@ -249,7 +279,7 @@ function parse (el) {
     }
 }
 
-function createCurrencies () {
+function createCurrencies() {
     math.createUnit(api.base, { aliases: ['€'] })
     Object.keys(api.rates)
         .filter(function (currency) {
@@ -262,7 +292,7 @@ function createCurrencies () {
     return Object.keys(api.rates).concat(api.base)
 }
 
-function format (value) {
+function format(value) {
     const precision = 14
     return math.format(value, precision)
 }
