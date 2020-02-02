@@ -22,24 +22,37 @@ let api = {
     }
 };
 
-let toggle = document.querySelector('.toggle-theme');
+let toggleBtn = document.querySelector('.toggle-theme');
+let saveBtn = document.querySelector('.save-btn');
+let importBtn = document.querySelector('.import-btn');
 
 // Turn the theme of if the 'dark-theme' key exists in localStorage
 if (localStorage.getItem('dark-theme')) {
     document.body.classList.add('dark-theme');
-    toggle.innerText = 'Off';
 }
 
-toggle.addEventListener('click', function (e) {
+saveBtn.addEventListener('click', (e) => {
     e.preventDefault();
+    let output = {
+        ver: '0.1.0',
+        date: new Date().toISOString(),
+        rows: []
+    }
+    Array.from(document.querySelectorAll(".row>div:nth-child(2)")).forEach(e => output.rows.push(e.innerText));
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(output));
+    var dlAnchorElem = document.getElementById('downloadAnchorElem');
+    dlAnchorElem.setAttribute("href", dataStr);
+    dlAnchorElem.setAttribute("download", "scene.json"); // ``
+    dlAnchorElem.click();
+});
 
+toggleBtn.addEventListener('click', function (e) {
+    e.preventDefault();
     if (document.body.classList.contains('dark-theme')) {
         document.body.classList.remove('dark-theme');
-        toggle.innerText = 'On';
         localStorage.removeItem('dark-theme');
     } else {
         document.body.classList.add('dark-theme');
-        toggle.innerText = 'Off';
         localStorage.setItem('dark-theme', true);
     }
 });
