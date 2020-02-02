@@ -4,6 +4,7 @@
   "description": "basic remake for the web of the soulver app for mac made with vanilla javascript",
   "main": "index.html",
   "scripts": {
+    "start": "http-server --port 5000"
   },
   "keywords": [
     "soulver",
@@ -13,5 +14,8 @@
     "spreadsheet"
   ],
   "author": "Lorenzo Corbella",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "http-server": "^0.12.1"
+  }
 }

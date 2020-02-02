@@ -1,6 +1,6 @@
 # SOULVER-WEB
 
-![IMG](soulver-web.PNG)
+![IMG](soulver-web.gif)
 
 ![](https://img.shields.io/badge/type-JS_Library-brightgreen.svg "Project type")
 ![](https://img.shields.io/github/repo-size/LorenzoCorbella74/soulver-web "Repository size")
@@ -18,14 +18,17 @@ A basic remake for the web of the [Soulver App](https://www.acqualia.com/soulver
 - [x] writing `total` in a blank new row sums the previous results (with auto update)
 - [ ] Unit Conversions
 - [ ] Calendar math
-- [ ] Percentages expressed with natural functions
+- [x] Percentages expressed with natural functions (10% of 20, 10 +/- 20%)
 - [ ] Number formatting
-- [ ] Import in .json and save in .txt/.json format
+- [x] Import and export sheets in .json format
 - [x] Black theme
 
 ## Demo
-To test things locally just serve the root with a web server or [check the app online](https://festive-lalande-0b44f6.netlify.com/)
-
+[check the app online](https://festive-lalande-0b44f6.netlify.com/) or to test things locally just
+```bash
+$ npm i
+$ npm start
+```
 ## Bugs
 - Uhm, many...!
 

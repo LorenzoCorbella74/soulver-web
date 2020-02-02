@@ -3,7 +3,7 @@
 * {
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
+    /* box-sizing: border-box; */
 }
 
 :root {
@@ -27,7 +27,6 @@
 /* btn toggle dark mode on/off */
 .btn {
     position: absolute;
-    color: var(--text-color-border);
     background-color: Transparent;
     background-repeat: no-repeat;
     border: none;
@@ -36,10 +35,10 @@
     outline: none;
 }
 
-.icon {
+i.icon {
     font-size: 24px;
     font-weight: 200;
-    color: var(--text-color);
+    color: var(--text-color-border);
 }
 
 .toggle-theme {
@@ -100,7 +99,6 @@ body {
 }
 
 .row {
-    /* border: 1px solid grey; */
     position: relative;
     letter-spacing: 0.075em;
 }
@@ -168,7 +166,7 @@ body {
 
 @media screen and (max-width: 1000px) {
     body {
-        font-size: 16px;
+        font-size: 20px;
     }
 }
 
@@ -189,15 +187,15 @@ body {
 
 @media screen and (max-width: 500px) {
     body {
-        font-size: 16px;
+        font-size: 14px;
     }
 
     .left {
         margin-left: 0%;
-        width: 75vw;
+        width: 80vw;
     }
 
     .right {
-        width: 25vw;
+        width: 20vw;
     }
 }

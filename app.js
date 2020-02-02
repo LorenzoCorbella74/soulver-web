@@ -5,7 +5,8 @@ let variables = {};
 let results = [];
 let relations = []; // indica in quale riga stanno i totali per poi ricaricare 
 let functionNames = ['sin', 'cos', 'tan', 'exp', 'sqrt', 'ceil', 'floor', 'abs', 'acos', 'asin', 'atan', 'log', 'round'];
-let specialOperator = [/* 'in' */];   // TODO: escludere in regex in(cludere) ad esempio...
+let specialOperator = ['in'];   // TODO: escludere in regex in(cludere) ad esempio...
+let importedFile = {};
 
 // MOCK taken from https://fixer.io/documentation
 let api = {
@@ -31,6 +32,28 @@ if (localStorage.getItem('dark-theme')) {
     document.body.classList.add('dark-theme');
 }
 
+importBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    let input = document.getElementById('file-input');
+    input.onchange = e => {
+        // getting a hold of the file reference
+        var file = e.target.files[0];
+        // setting up the reader
+        var reader = new FileReader();
+        reader.readAsText(file, 'UTF-8');
+        // here we tell the reader what to do when it's done reading...
+        reader.onload = readerEvent => {
+            var content = readerEvent.target.result; // this is the content!
+            try {
+                importedFile = JSON.parse(content);
+                createFromImportedFile(importedFile);
+            } catch (error) {
+                console.log('Was not possible to import the file!')
+            }
+        }
+    }
+    input.click();
+});
 saveBtn.addEventListener('click', (e) => {
     e.preventDefault();
     let output = {
@@ -135,6 +158,33 @@ function selectRow(el) {
             selectedRow = i;
             break;
         }
+    }
+}
+
+function cancellAll() {
+    let left = document.querySelectorAll(".left");
+    while (left.firstChild) {
+        left.removeChild(left.firstChild);
+    }
+    let right = document.querySelectorAll(".right");
+    while (right.firstChild) {
+        right.removeChild(right.firstChild);
+    }
+}
+
+function createFromImportedFile() {
+    cancellAll();
+    rows = 0;
+    if (importedFile && importedFile.rows) {
+        importedFile.rows.forEach((e, index) => {
+            createRowFromTemplate();
+            let editable = Array.from(document.querySelectorAll(".row>div:nth-child(2)"))[index];
+            editable.innerHTML = e;
+            highLite(editable);
+            if (index === importedFile.rows.length - 1) {
+                setCaretOnLastPosition(editable);
+            }
+        });
     }
 }
 
@@ -270,8 +320,10 @@ function parse(el) {
     }
 
     strToBeParsed = removeTextFromStr(strToBeParsed);
+    strToBeParsed = strToBeParsed
+        .replace(/[\&nbsp;]/g, '')
+        .replace(/[\&;]/g, '');
 
-    expressions[selectedRow] = strToBeParsed.replace(/[\&;]/g, '').trim() || 0;
     console.log(`Stringa: ${el.innerHTML} - parsata: ${strToBeParsed}`, expressions);
 
     // se ci stanno Rx si definiscono le relazioni
@@ -285,7 +337,7 @@ function parse(el) {
         results = /* format( */math.evaluate(expressions, variables)/* ,2) */;
         results.map((e, i) => variables[`R${i}`] = e);  // si mette i risultati di riga nelle variabili
         console.log(variables);
-        createOrUpdateResult(results[selectedRow] ? results[selectedRow] : ''); // si aggiorna la riga corrente
+        createOrUpdateResult(results[selectedRow] ? results[selectedRow] : ' '); // si aggiorna la riga corrente
     } catch (error) {
         createOrUpdateResult('');
         console.log('Completing expression', error);
