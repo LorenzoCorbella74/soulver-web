@@ -24,11 +24,9 @@ A basic remake for the web of the [Soulver App](https://www.acqualia.com/soulver
 - [x] Black theme
 
 ## Demo
-[check the app online](https://festive-lalande-0b44f6.netlify.com/) or to test things locally just
-```bash
-$ npm i
-$ npm start
-```
+[check the app online](https://festive-lalande-0b44f6.netlify.com/) or to test things locally just install dependancies with `npm i`
+and run the local server with `npm start`.  SVG Icons courtesy from [svgicons.sparkk](http://svgicons.sparkk.fr/).
+
 ## Bugs
 - Uhm, many...!
 

@@ -1,201 +1,244 @@
-@import 'https://fonts.googleapis.com/css?family=Roboto:300,400,500';
+@import "https://fonts.googleapis.com/css?family=Roboto:300,400,500";
 
 * {
-    margin: 0;
-    padding: 0;
-    /* box-sizing: border-box; */
+  margin: 0;
+  padding: 0;
+  /* box-sizing: border-box; */
 }
 
 :root {
-    --bg: white;
-    --text-color: rgb(40, 40, 40);
-    --bg-dx: #f4f5f5;
-    --text-color-border: rgb(220, 220, 220);
-    --bg-result: #0187f7;
-    --text-currency: #B10DC9;
+  --bg: white;
+  --negate: rgb(60, 60, 60);
+  --text-color: rgb(40, 40, 40);
+  --bg-dx: #f4f5f5;
+  --text-color-border: rgb(220, 220, 220);
+  --bg-result: #0187f7;
+  --text-currency: #b10dc9;
 }
 
 .dark-theme {
-    --bg: rgb(60, 60, 60);
-    --text-color: rgb(220, 220, 220);
-    --bg-dx: rgb(80, 80, 80);
-    --text-color-border: rgb(50, 50, 50);
-    --bg-result: #39CCCC;
-    --text-currency: #01FF70;
+  --bg: rgb(60, 60, 60);
+  --negate: white;
+  --text-color: rgb(220, 220, 220);
+  --bg-dx: rgb(80, 80, 80);
+  --text-color-border: rgb(50, 50, 50);
+  --bg-result: #39cccc;
+  --text-currency: #01ff70;
 }
 
 /* btn toggle dark mode on/off */
 .btn {
-    position: absolute;
-    background-color: Transparent;
-    background-repeat: no-repeat;
-    border: none;
-    cursor: pointer;
-    overflow: hidden;
-    outline: none;
+  position: absolute;
+  background-color: Transparent;
+  background-repeat: no-repeat;
+  border: none;
+  cursor: pointer;
+  overflow: hidden;
+  outline: none;
 }
 
-i.icon {
-    font-size: 24px;
-    font-weight: 200;
-    color: var(--text-color-border);
+/* -----
+SVG Icons - svgicons.sparkk.fr
+----- */
+
+.btn>.svg-icon {
+  width: 2em;
+  height: 2em;
+}
+
+.btn>.svg-icon path,
+.btn>.svg-icon polygon,
+.btn>.svg-icon rect {
+  fill: var(--bg-result);
+}
+
+.svg-icon circle {
+  stroke: var(--bg-result);
+  stroke-width: 1;
 }
 
 .toggle-theme {
-    top: 20px;
-    left: 20px;
+  top: 20px;
+  left: 20px;
 }
 
 .save-btn {
-    top: 20px;
-    left: 50px;
+  top: 20px;
+  left: 54px;
 }
 
 .import-btn {
-    top: 20px;
-    left: 80px;
+  top: 20px;
+  left: 88px;
 }
 
 body {
-    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
-    font-size: 22px;
-    font-weight: 400;
-    line-height: 1.5;
-    overflow-y: hidden;
-    /* Hide vertical scrollbar */
-    overflow-x: hidden;
-    /* Hide horizontal scrollbar */
-    background-color: var(--bg);
-    color: var(--text-color)
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.5;
+  overflow-y: hidden;
+  /* Hide vertical scrollbar */
+  overflow-x: hidden;
+  /* Hide horizontal scrollbar */
+  background-color: var(--bg);
+  color: var(--text-color);
 }
 
 .content {
-    display: flex;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    width: 100%;
+  display: flex;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  width: 100%;
 }
 
 .left {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 60vw;
-    height: 100vh;
-    margin-left: 10%;
-    margin-top: 60px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60vw;
+  height: 100vh;
+  margin-left: 10%;
+  margin-top: 60px;
 }
 
 .right {
-    position: absolute;
-    right: 0;
-    top: 0;
-    height: 100vh;
-    width: 30vw;
-    background-color: var(--bg-dx);
-    border-left: 1px solid var(--text-color-border);
-    padding-top: 60px;
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100vh;
+  width: 30vw;
+  background-color: var(--bg-dx);
+  border-left: 1px solid var(--text-color-border);
+  padding-top: 60px;
 }
 
 .row {
-    position: relative;
-    letter-spacing: 0.075em;
+  position: relative;
+  letter-spacing: 0.075em;
 }
 
 .formatted,
 .editable,
 .result {
-    padding: 16px 16px 8px 16px;
-    min-height: 26.5px;
+  padding: 16px 16px 8px 16px;
+  min-height: 26.5px;
 }
 
 .result-cell {
-    color: var(--text-color-border);
-    /*     padding: 8px; */
-    background-color: var(--bg-result);
-    border-radius: 6px;
+  color: var(--text-color-border);
+  /*     padding: 8px; */
+  background-color: var(--bg-result);
+  border-radius: 6px;
 }
 
 .formatted {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    user-select: none;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  user-select: none;
 }
 
-.row>div:nth-child(2) {
-    position: relative;
-    -webkit-text-fill-color: transparent;
-    /* Chrome: make text transparent */
-    text-fill-color: transparent;
-    color: black;
-    /* But keep caret black */
+.row > div:nth-child(2) {
+  position: relative;
+  -webkit-text-fill-color: transparent;
+  /* Chrome: make text transparent */
+  text-fill-color: transparent;
+  color: black;
+  /* But keep caret black */
 }
 
 .numbers {
-    color: #7FDBFF;
-    font-weight: bold;
+  color: #7fdbff;
+  font-weight: bold;
 }
 
 .units {
-    color: rgb(31, 113, 221);
-    font-weight: bold;
+  color: rgb(31, 113, 221);
+  font-weight: bold;
 }
 
 .currencies {
-    color: var(--text-currency);
-    font-weight: bold;
+  color: var(--text-currency);
+  font-weight: bold;
 }
 
 .headers {
-    color: var(--text-color);
-    font-weight: bold;
+  color: var(--text-color);
+  font-weight: bold;
 }
 
 .comments {
-    color: rgb(120, 120, 120);
-    font-weight: normal;
+  color: rgb(120, 120, 120);
+  font-weight: normal;
 }
 
 [contenteditable]:focus {
-    outline: 0px solid transparent;
+  outline: 0px solid transparent;
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted var(--text-color);
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: var(--text-color);
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -60px;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
 }
 
 @media screen and (max-width: 1000px) {
-    body {
-        font-size: 20px;
-    }
+  body {
+    font-size: 20px;
+  }
 }
 
 @media screen and (max-width: 700px) {
-    body {
-        font-size: 18px;
-    }
+  body {
+    font-size: 18px;
+  }
 
-    .left {
-        margin-left: 5%;
-        width: 65vw;
-    }
+  .left {
+    margin-left: 5%;
+    width: 65vw;
+  }
 
-    .right {
-        width: 30vw;
-    }
+  .right {
+    width: 30vw;
+  }
 }
 
 @media screen and (max-width: 500px) {
-    body {
-        font-size: 14px;
-    }
+  body {
+    font-size: 14px;
+  }
 
-    .left {
-        margin-left: 0%;
-        width: 80vw;
-    }
+  .left {
+    margin-left: 0%;
+    width: 80vw;
+  }
 
-    .right {
-        width: 20vw;
-    }
+  .right {
+    width: 20vw;
+  }
 }
