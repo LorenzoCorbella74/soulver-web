@@ -31,7 +31,7 @@ let importBtn = document.querySelector('.import-btn');
 let listenBtn = document.querySelector('.btn.listen-btn');
 const sound = document.querySelector('.sound');
 
-let statusListening = '';
+let statusListening = 'stop';
 
 try {
     var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -39,7 +39,7 @@ try {
     // mostra btn
     listenBtn.classList.add('show');
     listenBtn.classList.remove('hide');
-    statusListening = '';
+    statusListening = 'stop';
 } catch (e) {
     console.error(e);
 }
@@ -101,11 +101,12 @@ toggleBtn.addEventListener('click', function (e) {
         localStorage.setItem('dark-theme', true);
         isDark = true;
     }
+    listenBtn.childNodes[1].style.fill = isDark ? '#39cccc' : '#0187f7';
 });
 
 
 function listen(e) {
-    if (statusListening !== 'stop') {
+    if (statusListening !== 'play') {
         statusListening = 'play'
         e.target.childNodes[1].style.fill = "red";
         sound.play();
@@ -119,7 +120,9 @@ function listen(e) {
             console.log(event);
             var output = "";
             for (var i = 0; i < event.results.length; i++) {
-                output += event.results[i][0].transcript;
+                // if (event.results[i][0].isFinal) {
+                output = event.results[i][0].transcript;
+                //}
             }
             let editable = Array.from(document.querySelectorAll(".row>div:nth-child(2)"))[selectedRow];
             editable.innerHTML = output;

@@ -38,29 +38,39 @@
   z-index: 10;
 }
 
+.love {
+  position: absolute;
+  right: 3%;
+  bottom: 3%;
+  font-size: 90%;
+  color: var(--bg-result);
+}
+
 /* -----
 SVG Icons - svgicons.sparkk.fr
 ----- */
 
 
 
-.btn > .svg-icon {
+.btn>.svg-icon {
   width: 2em;
   height: 2em;
 }
-.btn > .svg-icon-big {
+
+.btn>.svg-icon-big {
   width: 5em;
   height: 5em;
 }
 
-.btn > .svg-icon path,
-.btn > .svg-icon-big path,
-.btn > .svg-icon polygon,
-.btn > .svg-icon rect {
+.btn>.svg-icon path,
+.btn>.svg-icon-big path,
+.btn>.svg-icon polygon,
+.btn>.svg-icon rect {
   fill: var(--bg-result);
 }
 
-.svg-icon circle, .svg-icon-big circle {
+.svg-icon circle,
+.svg-icon-big circle {
   stroke: var(--bg-result);
   stroke-width: 1;
 }
@@ -81,7 +91,7 @@ SVG Icons - svgicons.sparkk.fr
 }
 
 .listen-btn {
-  bottom: 5%;
+  bottom: 3%;
   left: 42%;
 }
 
@@ -89,6 +99,7 @@ SVG Icons - svgicons.sparkk.fr
   transition: opacity 650ms;
   cursor: pointer;
 }
+
 .hide {
   opacity: 0;
 }
@@ -167,7 +178,7 @@ body {
   user-select: none;
 }
 
-.row > div:nth-child(2) {
+.row>div:nth-child(2) {
   position: relative;
   -webkit-text-fill-color: transparent;
   /* Chrome: make text transparent */
