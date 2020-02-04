@@ -5,7 +5,7 @@ let variables = {};
 let results = [];
 let relations = []; // indica in quale riga stanno i totali per poi ricaricare 
 let functionNames = ['sin', 'cos', 'tan', 'exp', 'sqrt', 'ceil', 'floor', 'abs', 'acos', 'asin', 'atan', 'log', 'round'];
-let specialOperator = ['in\\b', 'mm\\b', 'm\\b', 'km\\b', 'mg\\b', 'g\\b', 'kg\\b', 'cm2\\b', 'm2\\b', 'km2\\b'];   // TODO: escludere in regex in(cludere) ad esempio...
+let specialOperator = ['in\\b', 'k\\b', 'M\\b', 'mm\\b', 'cm\\b', 'm\\b', 'km\\b', 'mg\\b', 'g\\b', 'kg\\b', 'cm2\\b', 'm2\\b', 'km2\\b'];   // TODO: escludere in regex in(cludere) ad esempio...
 let importedFile = {};
 const APP_VERSION = '0.1.3';
 let isDark = false;
@@ -21,7 +21,6 @@ const sound = document.querySelector('.sound');
 let SpeechRecognition = null, recognition = null;
 
 /* EVENT HANDLERS */
-
 importBtn.addEventListener('click', (e) => {
     e.preventDefault();
     let input = document.getElementById('file-input');
@@ -36,7 +35,7 @@ importBtn.addEventListener('click', (e) => {
             var content = readerEvent.target.result; // this is the content!
             try {
                 importedFile = JSON.parse(content);
-                createFromImportedFile(importedFile);
+                createSheetFromImportedFile(importedFile);
             } catch (error) {
                 console.log('Was not possible to import the file!')
             }
@@ -56,7 +55,7 @@ saveBtn.addEventListener('click', (e) => {
     var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(output));
     var dlAnchorElem = document.getElementById('downloadAnchorElem');
     dlAnchorElem.setAttribute("href", dataStr);
-    dlAnchorElem.setAttribute("download", "scene.json"); // ``
+    dlAnchorElem.setAttribute("download", `sheet_${formatDate(new Date())}.json`); // ``
     dlAnchorElem.click();
 });
 
@@ -216,7 +215,7 @@ function cancellAll() {
     }
 }
 
-function createFromImportedFile() {
+function createSheetFromImportedFile() {
     cancellAll();
     rows = 0;
     if (importedFile && importedFile.rows) {
@@ -237,7 +236,9 @@ function createFromImportedFile() {
 // REPLACE: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace
 function formatWithColors(el) {
     let currenciesConcatenated = currencies.join("|");
+    let operatorsConcatenated = specialOperator.join("|");
     let re = `(?<!.+\\/\\/.*)(${currenciesConcatenated})\\b`;
+    let re2 = `(?<!.+\\/\\/.*)(${operatorsConcatenated})\\b`;
     if (el.innerHTML.indexOf('#') !== -1) {
         el.previousElementSibling.innerHTML = el.innerHTML.trim()
             .replace(/\#(.*)/g, "<span class='headers'>#$1</span>")
@@ -249,7 +250,7 @@ function formatWithColors(el) {
                 .replace(new RegExp(re, "g"), "<span class='currencies'>$1</span>")
                 .replace(/total/g, "<span class='headers'>total</span>")
                 .replace(/\/\/(.*)/g, "<span class='comments'>//$1</span>")
-            //.replace(/[kM](?=.+\/\/\w*)/g, "<span class='units'>$1</span>")       // non funzionz (?<=\W\d+)[kM](?=.+\/\/\w*)
+                .replace(new RegExp(re2, "g"), "<span class='units'>$1</span>")       // non funzionz (?<=\W\d+)[kM](?=.+\/\/\w*)
         } else {
             el.previousElementSibling.innerHTML = el.innerHTML.trim()
                 .replace(/(?<!#.*)\b((\d*[\.,])?\d+)/g, "<span class='numbers'>$1</span>")   //solo numeri con '.' come separatore decimale
@@ -257,7 +258,7 @@ function formatWithColors(el) {
                 .replace(new RegExp(re, "g"), "<span class='currencies'>$1</span>")
                 .replace(/total/g, "<span class='headers'>total</span>")
                 .replace(/\/\/(.*)/g, "<span class='comments'>//$1</span>")
-            //.replace(/([kM])/g, "<span class='units'>$1</span>")  // non funziona.... (?<=\W\d+)([kM])
+                .replace(new RegExp(re2, "g"), "<span class='units'>$1</span>")  // non funziona.... (?<=\W\d+)([kM])
         }
     }
 
@@ -285,6 +286,7 @@ function onKeyPress(e, el) {
         el.previousElementSibling.innerHTML = `<span class="result-cell">R${selectedRow - 1}</span>`; // TODO: qua si può attaccare un onmousemove="showToolTipValue(this)""
         setCaretOnLastPosition(el);
     }
+    // TODO: shortcuts for save, import,settings, etc
 }
 
 // assegna ad ogni riga le variabili presenti

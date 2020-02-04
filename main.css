@@ -40,10 +40,10 @@
 }
 
 .btn:hover {
-  -webkit-transform: scale(1.10);
-  -moz-transform: scale(1.10);
-  -ms-transform: scale(1.10);
-  -o-transform: scale(1.10);
+  -webkit-transform: scale(1.25);
+  -moz-transform: scale(1.25);
+  -ms-transform: scale(1.25);
+  -o-transform: scale(1.25);
 }
 
 .love {
@@ -97,6 +97,12 @@ SVG Icons - svgicons.sparkk.fr
   display: inline-block;
   top: 20px;
   left: 88px;
+}
+
+.settings-btn {
+  display: inline-block;
+  top: 20px;
+  left: 122px;
 }
 
 .listen-btn {
@@ -234,7 +240,7 @@ body {
   color: var(--bg);
   font-size: 50%;
   text-align: center;
-  margin-left: 5px;
+  margin-left: 25px;
   padding: 4px;
   border-radius: 4px;
   position: absolute;
