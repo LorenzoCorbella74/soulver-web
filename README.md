@@ -13,17 +13,20 @@ A basic remake for the web of the [Soulver App](https://www.acqualia.com/soulver
 - [x] expressions parsing, math functions and operations thanks to [math.js](https://mathjs.org/)
 - [x] SI Notation: `k` for thousands, `M` for millions
 - [x] Inline variables declared using the equals sign
-- [x] Currencies: right now `EUR`, `USD` and `GBP` are supported. Convert them with `xEUR in USD` pattern.
+- [x] Currencies: thanks to [exchangeratesapi](https://exchangeratesapi.io/) it's possible to have daily rates for 32 [currencies](https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html) and convert them with the`xxEUR in USD` pattern.
 - [x] binding with rows results (by writing `R and rownumber` or by pressing `+` in a blank new row) with auto update
 - [x] writing `total` in a blank new row sums the previous results (with auto update)
 - [ ] Unit Conversions
-    - [ ] Area: cm2,m2,km2,ha
     - [x] Length/Distance: mm,cm,m,km
     - [x] Mass/Weight: mg,g,kg
-    - [ ] Time
+    - [ ] Area: cm2,m2,km2,ha
+    - [ ] Time:
     - [ ] Volume: cm3,m3,ml, l
 - [ ] Calendar math
-- [x] Percentages expressed with natural functions (10% of 20, var +/- 20%)
+- [x] Percentages expressed with natural functions 
+    - [x] 10% of 20
+    - [x] var +/- 20%
+    - [ ] var as a % of var
 - [ ] Number formatting
 - [x] Import and export sheets in .json format
 - [x] White/Black themes
