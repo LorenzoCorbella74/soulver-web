@@ -26,11 +26,11 @@ A basic remake for the web of the [Soulver App](https://www.acqualia.com/soulver
 - [x] Percentages expressed with natural functions (10% of 20, var +/- 20%)
 - [ ] Number formatting
 - [x] Import and export sheets in .json format
-- [x] Black theme
+- [x] White/Black themes
 - [x] Take notes by using voice-to-text with the [HTML5 Web Speech API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API)
 
 ## Demo
-[check the app online](https://festive-lalande-0b44f6.netlify.com/). To test things locally just install dependancies with `npm i`and run the local development environment with `npm start`.  SVG Icons courtesy from [svgicons.sparkk](http://svgicons.sparkk.fr/) and sound courtesy from [soundbible](http://soundbible.com/).
+[check the app online](https://festive-lalande-0b44f6.netlify.com/) or to test things locally just install dependancies with `npm i`and run the local development environment with `npm start`.  SVG Icons courtesy from [svgicons.sparkk](http://svgicons.sparkk.fr/) and sound courtesy from [soundbible](http://soundbible.com/).
 
 ## Bugs
 - Uhm, many...!
