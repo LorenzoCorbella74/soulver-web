@@ -5,56 +5,22 @@ let variables = {};
 let results = [];
 let relations = []; // indica in quale riga stanno i totali per poi ricaricare 
 let functionNames = ['sin', 'cos', 'tan', 'exp', 'sqrt', 'ceil', 'floor', 'abs', 'acos', 'asin', 'atan', 'log', 'round'];
-let specialOperator = ['in\\b','\mm\\b','m\\b','km\\b','mg\\b','g\\b','kg\\b','cm2\\b','m2\\b','km2\\b'];   // TODO: escludere in regex in(cludere) ad esempio...
+let specialOperator = ['in\\b', 'mm\\b', 'm\\b', 'km\\b', 'mg\\b', 'g\\b', 'kg\\b', 'cm2\\b', 'm2\\b', 'km2\\b'];   // TODO: escludere in regex in(cludere) ad esempio...
 let importedFile = {};
-
-
-
-
-
-let isDark = false; 
- 
-// MOCK taken from https://fixer.io/documentation
-let api = {
-    "base": "EUR",
-    "date": "2020-01-28",
-    "rates": {
-        "AUD": 1.566015,
-        "CAD": 1.560132,
-        "CHF": 1.154727,
-        "CNY": 7.827874,
-        "GBP": 0.882047,
-        "JPY": 132.360679,
-        "USD": 1.23396
-    }
-};
+const APP_VERSION = '0.1.3';
+let isDark = false;
+let statusListening = 'stop';
+let currencies = [];
 
 let toggleBtn = document.querySelector('.toggle-theme');
 let saveBtn = document.querySelector('.save-btn');
 let importBtn = document.querySelector('.import-btn');
 let listenBtn = document.querySelector('.btn.listen-btn');
+
 const sound = document.querySelector('.sound');
+let SpeechRecognition = null, recognition = null;
 
-let statusListening = 'stop';
-
-try {
-    var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    var recognition = null;
-    // mostra btn
-    listenBtn.classList.add('show');
-    listenBtn.classList.remove('hide');
-    statusListening = 'stop';
-} catch (e) {
-    console.error(e);
-}
-
-
-
-// Turn the theme of if the 'dark-theme' key exists in localStorage
-if (localStorage.getItem('dark-theme')) {
-    document.body.classList.add('dark-theme');
-    isDark = true;
-}
+/* EVENT HANDLERS */
 
 importBtn.addEventListener('click', (e) => {
     e.preventDefault();
@@ -82,8 +48,8 @@ importBtn.addEventListener('click', (e) => {
 saveBtn.addEventListener('click', (e) => {
     e.preventDefault();
     let output = {
-        ver: '0.1.0',
-        date: new Date().toISOString(),
+        ver: APP_VERSION,
+        date: formatDate(new Date()),
         rows: []
     }
     Array.from(document.querySelectorAll(".row>div:nth-child(2)")).forEach(e => output.rows.push(e.innerText));
@@ -157,8 +123,6 @@ function listen(e) {
 function mouseUp(e) {
 
 }
-
-
 
 function createRowFromTemplate() {
     var temp = document.getElementsByTagName("template")[0];
@@ -272,6 +236,8 @@ function createFromImportedFile() {
 // SOURCE: https://stackoverflow.com/questions/41884969/replacing-content-in-contenteditable-box-while-typing
 // REPLACE: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace
 function formatWithColors(el) {
+    let currenciesConcatenated = currencies.join("|");
+    let re = `(?<!.+\\/\\/.*)(${currenciesConcatenated})\\b`;
     if (el.innerHTML.indexOf('#') !== -1) {
         el.previousElementSibling.innerHTML = el.innerHTML.trim()
             .replace(/\#(.*)/g, "<span class='headers'>#$1</span>")
@@ -280,18 +246,18 @@ function formatWithColors(el) {
             el.previousElementSibling.innerHTML = el.innerHTML.trim()
                 .replace(/(?<!#.*)\b((\d*[\.,])?\d+)(?=.+\/\/\w*)/g, "<span class='numbers'>$1</span>")   //solo numeri con '.' come separatore decimale
                 .replace(/(?<!#.*)\bR[0-9]{1,2}\b(?=.+\/\/.*)/g, "<span class='result-cell'>$&</span>")   // solo totali di riga: R0, R1,..
-                .replace(/(EUR|USD|GBP)\b(?=.+\/\/\w*)/g, "<span class='currencies'>$1</span>")
+                .replace(new RegExp(re, "g"), "<span class='currencies'>$1</span>")
                 .replace(/total/g, "<span class='headers'>total</span>")
                 .replace(/\/\/(.*)/g, "<span class='comments'>//$1</span>")
-                .replace(/[kM](?=.+\/\/\w*)/g, "<span class='units'>$1</span>")       // non funzionz (?<=\W\d+)[kM](?=.+\/\/\w*)
+            //.replace(/[kM](?=.+\/\/\w*)/g, "<span class='units'>$1</span>")       // non funzionz (?<=\W\d+)[kM](?=.+\/\/\w*)
         } else {
             el.previousElementSibling.innerHTML = el.innerHTML.trim()
                 .replace(/(?<!#.*)\b((\d*[\.,])?\d+)/g, "<span class='numbers'>$1</span>")   //solo numeri con '.' come separatore decimale
                 .replace(/(?<!#.*)\bR[0-9]{1,2}\b/g, "<span class='result-cell'>$&</span>")   // solo totali di riga: R0, R1,..
-                .replace(/(EUR|USD|GBP)\b/g, "<span class='currencies'>$1</span>")
+                .replace(new RegExp(re, "g"), "<span class='currencies'>$1</span>")
                 .replace(/total/g, "<span class='headers'>total</span>")
                 .replace(/\/\/(.*)/g, "<span class='comments'>//$1</span>")
-                .replace(/([kM])/g, "<span class='units'>$1</span>")  // non funziona.... (?<=\W\d+)([kM])
+            //.replace(/([kM])/g, "<span class='units'>$1</span>")  // non funziona.... (?<=\W\d+)([kM])
         }
     }
 
@@ -425,17 +391,55 @@ function parse(el) {
     }
 }
 
-function createCurrencies() {
-    math.createUnit(api.base, { aliases: ['€'] })
-    Object.keys(api.rates)
-        .filter(function (currency) {
-            return currency !== api.base
+
+function initSpeechRecognition() {
+    try {
+        SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = null;
+        // mostra btn
+        listenBtn.classList.add('show');
+        listenBtn.classList.remove('hide');
+        statusListening = 'stop';
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+function formatDate(date) {
+    var d = new Date(date),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+    if (month.length < 2)
+        month = '0' + month;
+    if (day.length < 2)
+        day = '0' + day;
+
+    return [year, month, day].join('-');
+}
+
+function getCurrencies() {
+    // fetch actual currency conversion rates
+    return fetch('https://api.exchangeratesapi.io/latest')
+        .then(function (response) {
+            return response.json()
         })
+        .then(function (data) {
+            console.log('Currencies:', data);
+            localStorage.setItem(`currencies-${data.date}`, JSON.stringify(data))
+            return createUnit(data);
+        });
+}
+
+function createUnit(data) {
+    math.createUnit(data.base, { aliases: ['€'] });
+    Object.keys(data.rates)
         .forEach(function (currency) {
-            math.createUnit(currency, math.unit(1 / api.rates[currency], api.base))
-        })
+            math.createUnit(currency, math.unit(1 / data.rates[currency], data.base));
+        });
     // return an array with all available currencies
-    return Object.keys(api.rates).concat(api.base)
+    return Object.keys(data.rates).concat(data.base);
 }
 
 function format(value) {
@@ -443,72 +447,49 @@ function format(value) {
     return math.format(value, precision)
 }
 
-let currencies = createCurrencies()
+function init() {
+    currencies = localStorage.getItem(`currencies-${formatDate(new Date())}`); // only a call a day!!!
+    if (!currencies) {
+        getCurrencies().then(e => currencies = e);
+    } else {
+        currencies = createUnit(JSON.parse(currencies));
+    }
+    // Turn the theme of if the 'dark-theme' key exists in localStorage
+    if (localStorage.getItem('dark-theme')) {
+        document.body.classList.add('dark-theme');
+        isDark = true;
+    }
 
-// si crea la 1° riga
-createRowFromTemplate()
+    initSpeechRecognition();
+    // si crea la 1° riga
+    createRowFromTemplate()
+}
 
-
+init();
 /*
-
-
     TODO:
-
     [] classe per la gestione del caret
-    https://stackoverflow.com/questions/6249095/how-to-set-caretcursor-position-in-contenteditable-element-div
-    https://stackoverflow.com/questions/10778291/move-the-cursor-position-with-javascript
-
     [] classe per la gestione della view e classe per la gestione del parsing e calcoli (in file separati)
-
-    [x] commenti non con  @ ma con //, : label
-    [x] parsare i k e i M alla sx dei numeri per moltiplicare il numero (SI notation)
     [] formattazione di numeri con separazione per migliaia e virgola
     [] colori custom definiti nelle preferenze tramite modale
     [] totale in fondo alla pagina
-
     [] percentuali
         NUM +/- 20%
         40 come % di 50 (N as a % of N)
         20 che % è di 50 (N is what % of N)
-    [x] 5% di NUM
-
     [] matematica per le date
         Today + 3 weeks 2 days
         3:35 am + 9 hours 20 minutes
         From March 12 to July 30
-
-    [] conversione tra unità di misura (tramite 'in' e nuova_unità_misura)
-
     [] json export / inport tramite modale
     [] variabili globali
-
     [] progressive web app ed electron
-
     [] internalizzazione e formati numerici
 
-
+    NOTES:
+    https://stackoverflow.com/questions/6249095/how-to-set-caretcursor-position-in-contenteditable-element-div
+    https://stackoverflow.com/questions/10778291/move-the-cursor-position-with-javascript
     https://stackoverflow.com/questions/18884262/regular-expression-match-string-not-preceded-by-another-string-javascript
 
-*/
 
-/*
-    SOURCE: https://caniuse.com/#feat=js-regexp-lookbehind
-    Commenti e tutto quello che c'è dopo:
-    \/\/(.*)
-
-    Numeri: tutti i numeri con separatore virgola o punto non seguiti da // o non preceduti da #
-    (?<!#.*)\b((\d*[\.,])?\d+)\b 	// se non ci stanno i //
-    (?<!#.*)\b((\d*[\.,])?\d+)\b(?=.+\/\/\w*)	altrimenti
-
-    Risultati
-    (?<!#.*)\bR[0-9]{1,2}\b		se non ci stanno i //
-    (?<!#.*)\bR[0-9]{1,2}\b(?=.+\/\/.*)	altrimenti
-
-    currencies/
-    (?<!#.*)\b(mele|pere)\b
-
-    k, M
-
-    header
-    #(.*)
 */

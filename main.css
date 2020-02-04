@@ -39,17 +39,18 @@
   z-index: 10;
 }
 
-.btn:hover { 
+.btn:hover {
   -webkit-transform: scale(1.10);
   -moz-transform: scale(1.10);
   -ms-transform: scale(1.10);
   -o-transform: scale(1.10);
-} 
+}
+
 .love {
   position: absolute;
   right: 3%;
   bottom: 3%;
-  font-size: 90%;
+  font-size: 80%;
   color: var(--bg-result);
 }
 
@@ -57,7 +58,7 @@
 SVG Icons - svgicons.sparkk.fr
 ----- */
 
-.btn > .svg-icon {
+.btn>.svg-icon {
   width: 2em;
   height: 2em;
 }
@@ -238,12 +239,12 @@ body {
   border-radius: 4px;
   position: absolute;
   z-index: 100;
-  width:74px;
-  height:16px;
+  width: 74px;
+  height: 16px;
 }
 
 .couponcode {
-  margin:52px 20px;
+  margin: 52px 20px;
 }
 
 @media screen and (max-width: 1000px) {
