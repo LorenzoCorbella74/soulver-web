@@ -17,6 +17,11 @@ A basic remake for the web of the [Soulver App](https://www.acqualia.com/soulver
 - [x] binding with rows results (by writing `R and rownumber` or by pressing `+` in a blank new row) with auto update
 - [x] writing `total` in a blank new row sums the previous results (with auto update)
 - [ ] Unit Conversions
+    - [ ] Area: cm2,m2,km2,ha
+    - [x] Length/Distance: mm,cm,m,km
+    - [x] Mass/Weight: mg,g,kg
+    - [ ] Time
+    - [ ] Volume: cm3,m3,ml, l
 - [ ] Calendar math
 - [x] Percentages expressed with natural functions (10% of 20, var +/- 20%)
 - [ ] Number formatting

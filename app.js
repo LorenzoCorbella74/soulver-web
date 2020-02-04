@@ -5,11 +5,15 @@ let variables = {};
 let results = [];
 let relations = []; // indica in quale riga stanno i totali per poi ricaricare 
 let functionNames = ['sin', 'cos', 'tan', 'exp', 'sqrt', 'ceil', 'floor', 'abs', 'acos', 'asin', 'atan', 'log', 'round'];
-let specialOperator = ['\\bin\\b'];   // TODO: escludere in regex in(cludere) ad esempio...
+let specialOperator = ['in\\b','\mm\\b','m\\b','km\\b','mg\\b','g\\b','kg\\b','cm2\\b','m2\\b','km2\\b'];   // TODO: escludere in regex in(cludere) ad esempio...
 let importedFile = {};
 
-let isDark = false;
 
+
+
+
+let isDark = false; 
+ 
 // MOCK taken from https://fixer.io/documentation
 let api = {
     "base": "EUR",
