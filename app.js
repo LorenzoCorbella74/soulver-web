@@ -5,7 +5,7 @@ let variables = {};
 let results = [];
 let relations = []; // indica in quale riga stanno i totali per poi ricaricare 
 let functionNames = ['sin', 'cos', 'tan', 'exp', 'sqrt', 'ceil', 'floor', 'abs', 'acos', 'asin', 'atan', 'log', 'round'];
-let specialOperator = ['in\\b', 'k\\b', 'M\\b', 'mm\\b', 'cm\\b', 'm\\b', 'km\\b', 'mg\\b', 'g\\b', 'kg\\b', 'cm2\\b', 'm2\\b', 'km2\\b'];   // TODO: escludere in regex in(cludere) ad esempio...
+let specialOperator = ['in\\b', 'k\\b', 'M\\b', 'mm\\b', 'cm\\b', 'm\\b', 'km\\b', 'mg\\b', 'g\\b', 'kg\\b', 'cm2\\b', 'm2\\b', 'km2\\b'];
 let importedFile = {};
 const APP_VERSION = '0.1.3';
 let isDark = false;
@@ -18,7 +18,8 @@ let importBtn = document.querySelector('.import-btn');
 let listenBtn = document.querySelector('.btn.listen-btn');
 
 const sound = document.querySelector('.sound');
-let SpeechRecognition = null, recognition = null;
+let SpeechRecognition = null;
+let recognition = null;
 
 /* EVENT HANDLERS */
 importBtn.addEventListener('click', (e) => {
