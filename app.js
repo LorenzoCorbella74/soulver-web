@@ -292,6 +292,13 @@ function onKeyPress (e, el) {
 }
 
 // assegna ad ogni riga le variabili presenti
+/*
+    [ 
+        null,
+        [R0],
+        [R0,R1]
+    ]
+*/
 function setRelation (selectedRow, presences) {
     relations[selectedRow] = presences;
     console.log('Relations: ', relations);
@@ -317,23 +324,23 @@ function parse (el) {
     } else if (/\/\/(.*)/g.test(strToBeParsed)) {
         strToBeParsed = strToBeParsed.replace(/\/\/(.*)/g, "").trim(); // si rimuove tutto ciò oltre i //
     }
-    
+
     if (/(subtotale\b|subtotal\b).*/g.test(strToBeParsed)) {
         info[selectedRow].typeOfResult = 'S';
         let out = '0';
-        for (var i = selectedRow - 1; i >= 0; i--){
-            if(info[i].typeOfResult === 'N'){
+        for (var i = selectedRow - 1; i >= 0; i--) {
+            if (info[i].typeOfResult === 'N') {
                 out += `+ R${i}`;
-            } else if(info[i].typeOfResult !== 'S' || info[i].typeOfResult !== 'T' ){
+            } else if (info[i].typeOfResult !== 'S' || info[i].typeOfResult !== 'T') {
                 break;
-            } 
+            }
         }
         strToBeParsed = out;    // si costruisce la stringa per i totali
     } else if (/(total\b|totale\b).*/g.test(strToBeParsed)) {
         info[selectedRow].typeOfResult = 'T';
         let out = '0';
         for (var i = 0; i <= rows - 2; i++) {
-            if(info[i].typeOfResult === 'N'){
+            if (info[i].typeOfResult === 'N') {
                 out += `+ R${i}`;
             }
         }
@@ -396,9 +403,9 @@ function parse (el) {
     console.log(`Str originale: ${el.innerHTML} - parsata: ${strToBeParsed}`, expressions);
 
     // se ci stanno Rx si definiscono le relazioni
-    let relRegStr = `(^|[^\\w]\\b)(R\\d|${Object.keys(variables).join('|')})`
+    let relRegStr = `\\b(${Object.keys(variables).join('|')})\\b`
     let relReg = new RegExp(relRegStr, "g")
-    let presences = el.innerHTML !== 'total'||'subtotal'||'totale'||'sutotale' ? el.innerHTML.match(relReg) : strToBeParsed.match(relReg).map(e => e.replace(/\+/g, ''));
+    let presences = /\b(sub)?total(e)?\b/g.exec(el.innerHTML) ? strToBeParsed.match(relReg).map(e => e.replace(/\+/g, '')) : strToBeParsed.match(relReg);
     expressions[selectedRow] = strToBeParsed.replace(/^0\+/g, '').trim() || 0;  // si rimuove lo 0+ fix somme con unità
     setRelation(selectedRow, presences)
 
@@ -413,11 +420,11 @@ function parse (el) {
     }
 }
 
-function formatResults(results){
+function formatResults (results) {
     let output = [];
     for (let index = 0; index < results.length; index++) {
         const result = results[index];
-        if(result % 1 != 0){
+        if (result % 1 != 0) {
             output.push(format(result, 2));
         } else {
             output.push(result)

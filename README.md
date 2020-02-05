@@ -15,7 +15,8 @@ A basic remake for the web of the [Soulver App](https://www.acqualia.com/soulver
 - [x] Inline variables declared using the equals sign
 - [x] Currencies: thanks to [exchangeratesapi](https://exchangeratesapi.io/) it's possible to have daily rates for 32 [currencies](https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html) and convert them with the`xxEUR in USD` pattern.
 - [x] binding with rows results (by writing `R and rownumber` or by pressing `+` in a blank new row) with auto update
-- [x] writing `total` in a blank new row sums the previous results (with auto update)
+- [x] writing `subtotal` in a blank new row sums the previous results in the set (with auto update)
+- [x] writing `total` in a blank new row sums all the previous results (with auto update)
 - [ ] Unit Conversions
     - [x] Length/Distance: mm,cm,m,km
     - [x] Mass/Weight: mg,g,kg
