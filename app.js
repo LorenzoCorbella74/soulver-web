@@ -6,6 +6,7 @@ let results = [];
 let relations = []; // indica in quale riga stanno i totali per poi ricaricare 
 let functionNames = ['sin', 'cos', 'tan', 'exp', 'sqrt', 'ceil', 'floor', 'abs', 'acos', 'asin', 'atan', 'log', 'round'];
 let specialOperator = ['in\\b', 'k\\b', 'M\\b', 'mm\\b', 'cm\\b', 'm\\b', 'km\\b', 'mg\\b', 'g\\b', 'kg\\b', 'cm2\\b', 'm2\\b', 'km2\\b'];
+let info = [];
 let importedFile = {};
 const APP_VERSION = '0.1.3';
 let isDark = false;
@@ -75,7 +76,7 @@ toggleBtn.addEventListener('click', function (e) {
 });
 
 
-function listen(e) {
+function listen (e) {
     if (statusListening !== 'play') {
         statusListening = 'play'
         e.target.childNodes[1].style.fill = "red";
@@ -120,11 +121,11 @@ function listen(e) {
 
 }
 
-function mouseUp(e) {
+function mouseUp (e) {
 
 }
 
-function createRowFromTemplate() {
+function createRowFromTemplate () {
     var temp = document.getElementsByTagName("template")[0];
     var clone = temp.content.cloneNode(true);
     var left = document.querySelector('.content>.left')
@@ -132,7 +133,7 @@ function createRowFromTemplate() {
     focusOnCreatedRow();
 }
 
-function createOrUpdateResult(resultStr) {
+function createOrUpdateResult (resultStr) {
     // se non esiste si crea
     if (!document.querySelectorAll('.content>.right>.row>.result')[selectedRow]) {
         var temp = document.getElementsByTagName("template")[1];
@@ -146,7 +147,7 @@ function createOrUpdateResult(resultStr) {
 }
 
 // si aggiorna ogni riga in funzione della presenza delle variabili presenti in 'relations'
-function updateRelated() {
+function updateRelated () {
     for (let numRow = 0; numRow < rows; numRow++) {
         let who = relations.map(e => e && (e.includes(`R${numRow}`) || Object.keys(variables).findIndex(a => a == e) > -1)); // FIXME: da rivedere...
         if (who && who.length > 0) {
@@ -166,23 +167,23 @@ function updateRelated() {
     }
 }
 
-function updateResultInRow(resultStr, row) {
+function updateResultInRow (resultStr, row) {
     document.querySelectorAll('.content>.right>.row>.result')[row].innerText = resultStr;
 }
 
-function focusOnCreatedRow() {
+function focusOnCreatedRow () {
     let createdEditable = Array.from(document.querySelectorAll(".row>div:nth-child(2)"))[rows];
     createdEditable.focus();
     rows++;
 }
 
-function focusRow(num) {
+function focusRow (num) {
     let createdEditable = Array.from(document.querySelectorAll(".row>div:nth-child(2)"))[num];
     createdEditable.focus();
     setCaretOnLastPosition(createdEditable);
 }
 
-function setCaretOnLastPosition(el) {
+function setCaretOnLastPosition (el) {
     var range = document.createRange();
     var sel = window.getSelection();
     let selectedRowText = el.childNodes[0];
@@ -194,7 +195,7 @@ function setCaretOnLastPosition(el) {
     }
 }
 
-function selectRow(el) {
+function selectRow (el) {
     let createdEditable = Array.from(document.querySelectorAll(".row>div:nth-child(2)"));
     for (let i = 0; i < createdEditable.length; i++) {
         const element = createdEditable[i];
@@ -205,7 +206,7 @@ function selectRow(el) {
     }
 }
 
-function cancellAll() {
+function cancellAll () {
     let left = document.querySelectorAll(".left");
     while (left.firstChild) {
         left.removeChild(left.firstChild);
@@ -216,7 +217,7 @@ function cancellAll() {
     }
 }
 
-function createSheetFromImportedFile() {
+function createSheetFromImportedFile () {
     cancellAll();
     rows = 0;
     if (importedFile && importedFile.rows) {
@@ -235,7 +236,7 @@ function createSheetFromImportedFile() {
 
 // SOURCE: https://stackoverflow.com/questions/41884969/replacing-content-in-contenteditable-box-while-typing
 // REPLACE: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace
-function formatWithColors(el) {
+function formatWithColors (el) {
     let currenciesConcatenated = currencies.join("|");
     let operatorsConcatenated = specialOperator.join("|");
     let re = `(?<!.+\\/\\/.*)(${currenciesConcatenated})\\b`;
@@ -249,7 +250,7 @@ function formatWithColors(el) {
                 .replace(/(?<!#.*)\b((\d*[\.,])?\d+)(?=.+\/\/\w*)/g, "<span class='numbers'>$1</span>")   //solo numeri con '.' come separatore decimale
                 .replace(/(?<!#.*)\bR[0-9]{1,2}\b(?=.+\/\/.*)/g, "<span class='result-cell'>$&</span>")   // solo totali di riga: R0, R1,..
                 .replace(new RegExp(re, "g"), "<span class='currencies'>$1</span>")
-                .replace(/total/g, "<span class='headers'>total</span>")
+                .replace(/(total\b|totale\b|subtotal\b|subtotale\b)/g, "<span class='headers'>$1</span>")
                 .replace(/\/\/(.*)/g, "<span class='comments'>//$1</span>")
                 .replace(new RegExp(re2, "g"), "<span class='units'>$1</span>")       // non funzionz (?<=\W\d+)[kM](?=.+\/\/\w*)
         } else {
@@ -257,7 +258,7 @@ function formatWithColors(el) {
                 .replace(/(?<!#.*)\b((\d*[\.,])?\d+)/g, "<span class='numbers'>$1</span>")   //solo numeri con '.' come separatore decimale
                 .replace(/(?<!#.*)\bR[0-9]{1,2}\b/g, "<span class='result-cell'>$&</span>")   // solo totali di riga: R0, R1,..
                 .replace(new RegExp(re, "g"), "<span class='currencies'>$1</span>")
-                .replace(/total/g, "<span class='headers'>total</span>")
+                .replace(/(total\b|totale\b|subtotal\b|subtotale\b)/g, "<span class='headers'>$1</span>")
                 .replace(/\/\/(.*)/g, "<span class='comments'>//$1</span>")
                 .replace(new RegExp(re2, "g"), "<span class='units'>$1</span>")  // non funziona.... (?<=\W\d+)([kM])
         }
@@ -266,7 +267,7 @@ function formatWithColors(el) {
     parse(el);
 }
 
-function onKeyPress(e, el) {
+function onKeyPress (e, el) {
     // enter
     if (e.keyCode == 13) {
         e.preventDefault(); // stop event
@@ -291,32 +292,52 @@ function onKeyPress(e, el) {
 }
 
 // assegna ad ogni riga le variabili presenti
-function setRelation(selectedRow, presences) {
+function setRelation (selectedRow, presences) {
     relations[selectedRow] = presences;
     console.log('Relations: ', relations);
 }
 
-function removeTextFromStr(strToBeParsed) {
+function removeTextFromStr (strToBeParsed) {
     // si rimuove tutti i caratteri ma non le sottostringhe delle variabili, nomi delle funzioni ed unità di misura
     let varConcatenated = Object.keys(variables).concat(functionNames).concat(currencies).concat(specialOperator).join("|");
     let re = varConcatenated ? `\\b(?!${varConcatenated})\\b([a-zA-Z])+` : '[a-zA-Z]+';
-    return strToBeParsed.replace(new RegExp(re, "g"), "")/* .replace(/\s+/g, '').trim() */;
+    return strToBeParsed.replace(new RegExp(re, "g"), "").replace(/\&nbsp;/g, '').replace(/\&;/g, '');
 }
 
-function parse(el) {
+function parse (el) {
+    // H per header, N per normal, S per subtotal, T per total, A per assegnazione
+    // presenceOfSpecials indica la presenza di funzioni, unità di misura per cui
+    info[selectedRow] = { row: selectedRow, typeOfResult: 'N', presenceOfSpecials: false };
+
     let strToBeParsed = el.innerHTML.trim();
 
     if (/#(.*)/g.test(strToBeParsed)) {
         strToBeParsed = ''; // si rimuovono gli header
-
+        info[selectedRow].typeOfResult = 'H';
     } else if (/\/\/(.*)/g.test(strToBeParsed)) {
-        strToBeParsed = strToBeParsed.replace(/\/\/(.*)/g, "").trim(); // si rimuovono i commenti
-    } else if (/total/g.test(strToBeParsed)) {
+        strToBeParsed = strToBeParsed.replace(/\/\/(.*)/g, "").trim(); // si rimuove tutto ciò oltre i //
+    }
+    
+    if (/(subtotale\b|subtotal\b).*/g.test(strToBeParsed)) {
+        info[selectedRow].typeOfResult = 'S';
+        let out = '0';
+        for (var i = selectedRow - 1; i >= 0; i--){
+            if(info[i].typeOfResult === 'N'){
+                out += `+ R${i}`;
+            } else if(info[i].typeOfResult !== 'S' || info[i].typeOfResult !== 'T' ){
+                break;
+            } 
+        }
+        strToBeParsed = out;    // si costruisce la stringa per i totali
+    } else if (/(total\b|totale\b).*/g.test(strToBeParsed)) {
+        info[selectedRow].typeOfResult = 'T';
         let out = '0';
         for (var i = 0; i <= rows - 2; i++) {
-            out += `+ R${i}`
+            if(info[i].typeOfResult === 'N'){
+                out += `+ R${i}`;
+            }
         }
-        strToBeParsed = out;
+        strToBeParsed = out;    // si costruisce la stringa per i totali
     }
 
     // k dopo un numero *1000
@@ -333,8 +354,9 @@ function parse(el) {
         strToBeParsed = strToBeParsed.replace(/(\b(pi\ù)\B)/g, "+").trim();
     }
 
-    // se c'è una assegnazione si mette
+    // se c'è una assegnazione si mette tra le variabili
     if (/[=]/.test(strToBeParsed)) {
+        info[selectedRow].typeOfResult = 'A';
         // TODO: gestione espressione dentro il DX di una assegnazione...
         let reg = /\s*([^:]*?)\s*=\s*([^:\s]*)/g;
         while (match = reg.exec(strToBeParsed)) {
@@ -370,23 +392,20 @@ function parse(el) {
     }
 
     strToBeParsed = removeTextFromStr(strToBeParsed);
-    strToBeParsed = strToBeParsed
-        .replace(/\&nbsp;/g, '')
-        .replace(/\&;/g, '');
 
-    console.log(`Stringa: ${el.innerHTML} - parsata: ${strToBeParsed}`, expressions);
+    console.log(`Str originale: ${el.innerHTML} - parsata: ${strToBeParsed}`, expressions);
 
     // se ci stanno Rx si definiscono le relazioni
     let relRegStr = `(^|[^\\w]\\b)(R\\d|${Object.keys(variables).join('|')})`
     let relReg = new RegExp(relRegStr, "g")
-    let presences = el.innerHTML !== 'total' ? el.innerHTML.match(relReg) : strToBeParsed.match(relReg).map(e => e.replace(/\+/g, ''));
+    let presences = el.innerHTML !== 'total'||'subtotal'||'totale'||'sutotale' ? el.innerHTML.match(relReg) : strToBeParsed.match(relReg).map(e => e.replace(/\+/g, ''));
     expressions[selectedRow] = strToBeParsed.replace(/^0\+/g, '').trim() || 0;  // si rimuove lo 0+ fix somme con unità
     setRelation(selectedRow, presences)
 
     try {
-        results = /* format( */math.evaluate(expressions, variables)/* ,2) */;
+        results = formatResults(math.evaluate(expressions, variables));
         results.map((e, i) => variables[`R${i}`] = e);  // si mette i risultati di riga nelle variabili
-        console.log(variables);
+        console.log('Variabili: ', variables);
         createOrUpdateResult(results[selectedRow] ? results[selectedRow] : ''); // si aggiorna la riga corrente
     } catch (error) {
         createOrUpdateResult('');
@@ -394,8 +413,21 @@ function parse(el) {
     }
 }
 
+function formatResults(results){
+    let output = [];
+    for (let index = 0; index < results.length; index++) {
+        const result = results[index];
+        if(result % 1 != 0){
+            output.push(format(result, 2));
+        } else {
+            output.push(result)
+        }
+    }
+    return output;
+}
 
-function initSpeechRecognition() {
+
+function initSpeechRecognition () {
     try {
         SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = null;
@@ -408,7 +440,7 @@ function initSpeechRecognition() {
     }
 }
 
-function formatDate(date) {
+function formatDate (date) {
     var d = new Date(date),
         month = '' + (d.getMonth() + 1),
         day = '' + d.getDate(),
@@ -422,7 +454,7 @@ function formatDate(date) {
     return [year, month, day].join('-');
 }
 
-function getCurrencies() {
+function getCurrencies () {
     // fetch actual currency conversion rates
     return fetch('https://api.exchangeratesapi.io/latest')
         .then(function (response) {
@@ -435,7 +467,7 @@ function getCurrencies() {
         });
 }
 
-function createUnit(data) {
+function createUnit (data) {
     math.createUnit(data.base, { aliases: ['€'] });
     Object.keys(data.rates)
         .forEach(function (currency) {
@@ -445,12 +477,12 @@ function createUnit(data) {
     return Object.keys(data.rates).concat(data.base);
 }
 
-function format(value) {
-    const precision = 14
+function format (value) {
+    const precision = 4;
     return math.format(value, precision)
 }
 
-function init() {
+function init () {
     currencies = localStorage.getItem(`currencies-${formatDate(new Date())}`); // only a call a day!!!
     if (!currencies) {
         getCurrencies().then(e => currencies = e);
