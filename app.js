@@ -317,9 +317,9 @@ function removeTextFromStr (strToBeParsed) {
 }
 
 function parse (el) {
-    // H per header, N per normal, S per subtotal, T per total, A per assegnazione
-    // presenceOfSpecials indica la presenza di funzioni, unità di misura per cui
-    info[selectedRow] = { row: selectedRow, typeOfResult: 'N', presenceOfSpecials: false };
+    // typeOfResult: H per header, N per normal, S per subtotal, T per total, A per assegnazione
+    // typeOfResultFormat: N per noraml, % per percentuale
+    info[selectedRow] = { row: selectedRow, typeOfResult: 'N', typeOfResultFormat: 'N' };
 
     let strToBeParsed = el.innerHTML.trim();
 
@@ -401,6 +401,15 @@ function parse (el) {
         let num = match[1] ? match[1] + match[2] : match[2];
         let sostituzione = ((100 - Number(num)) / 100).toString();
         strToBeParsed = strToBeParsed.replace(/\-\s?(\d*[\.,])?(\d+\s?)(%)/g, `*${sostituzione}`);
+    }
+
+    // 10.1 come % di 10.1 ( 10.1 as % of 10.1)
+    let as = /(\d*[\.,])?(\d+\s?)(come|as)(\s+%)(\s+(di|of)\s+)(\d*[\.,])?(\d+\s?)/g;
+    while (match = as.exec(strToBeParsed)) {
+        let num1 = match[1] ? match[1] + match[2] : match[2];
+        let num2 = match[7] ? match[7] + match[8] : match[8];
+        let sostituzione = (Number(num1) / Number(num2)).toString();
+        strToBeParsed = strToBeParsed.replace(/(\d*[\.,])?(\d+\s?)(come|as)(\s+%)(\s+(di|of)\s+)(\d*[\.,])?(\d+\s?)/g, `${sostituzione}`);
     }
 
     strToBeParsed = removeTextFromStr(strToBeParsed);

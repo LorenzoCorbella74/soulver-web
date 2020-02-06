@@ -27,7 +27,7 @@ A basic remake for the web of the [Soulver App](https://www.acqualia.com/soulver
 - [x] Percentages expressed with natural functions 
     - [x] 10% of 20
     - [x] var +/- 20%
-    - [ ] var as a % of var
+    - [x] var as a % of var
 - [ ] Number formatting
 - [x] Import and export sheets in .json format
 - [x] White/Black themes
