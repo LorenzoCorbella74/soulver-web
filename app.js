@@ -8,7 +8,7 @@ let functionNames = ['sin', 'cos', 'tan', 'exp', 'sqrt', 'ceil', 'floor', 'abs',
 let specialOperator = ['in\\b', 'k\\b', 'M\\b', 'mm\\b', 'cm\\b', 'm\\b', 'km\\b', 'mg\\b', 'g\\b', 'kg\\b', 'cm2\\b', 'm2\\b', 'km2\\b'];
 let info = [];
 let importedFile = {};
-const APP_VERSION = '0.1.3';
+const APP_VERSION = 'V 0.1.6';
 let isDark = false;
 let statusListening = 'stop';
 let currencies = [];
@@ -144,22 +144,27 @@ function createOrUpdateResult (resultStr) {
     // console.log('Updating result...', resultStr)
     document.querySelectorAll('.content>.right>.row>.result')[selectedRow].innerText = resultStr;
     updateRelated()
+
+}
+
+function checkIfUnit (obj) {
+    return typeof obj === 'object' && obj !== null && obj.value;
 }
 
 // si aggiorna ogni riga in funzione della presenza delle variabili presenti in 'relations'
 function updateRelated () {
-    for (let numRow = 0; numRow < rows; numRow++) {
+    for (let numRow = 0; numRow < rows; numRow++) { // per tutte le righe si vede quelle che includono nelle relazioni le variabili 
         let who = relations.map(e => e && (e.includes(`R${numRow}`) || Object.keys(variables).findIndex(a => a == e) > -1)); // FIXME: da rivedere...
         if (who && who.length > 0) {
             who.forEach((element, index) => {
                 if (element) {
                     try {
-                        results = /* format( */math.evaluate(expressions, variables)/* ,0) */;
-                        results.map((e, i) => variables[`R${i}`] = e);  // si mette i risultati di riga nelle variabili
-                        updateResultInRow(results[index] ? results[index] : '', index); // si aggiorna la riga corrente
+                        results = math.evaluate(expressions, variables);
+                        results.map((e, i) => variables[`R${i}`] = checkIfUnit(e) ? math.unit(e) : e);  // si mette i risultati di riga nelle variabili
+                        updateResultInRow(results[index] ? formatResults(results[index]) : '', index);  // si aggiorna la riga corrente
                     } catch (error) {
                         updateResultInRow('', index);
-                        console.log('Completing expression');
+                        console.log('Completing expression', error);
                     }
                 }
             });
@@ -410,25 +415,27 @@ function parse (el) {
     setRelation(selectedRow, presences)
 
     try {
-        results = formatResults(math.evaluate(expressions, variables));
-        results.map((e, i) => variables[`R${i}`] = e);  // si mette i risultati di riga nelle variabili
-        console.log('Variabili: ', variables);
-        createOrUpdateResult(results[selectedRow] ? results[selectedRow] : ''); // si aggiorna la riga corrente
+        results = math.evaluate(expressions, variables);
+        results.map((e, i) => variables[`R${i}`] = checkIfUnit(e) ? math.unit(e) : e);  // si mette i risultati di riga nelle variabili
+        console.log('Risultati: ', results, 'Variabili: ', variables);
+        createOrUpdateResult(results[selectedRow] ? formatResults(results[selectedRow]) : ''); // si aggiorna la riga corrente
     } catch (error) {
         createOrUpdateResult('');
         console.log('Completing expression', error);
     }
 }
 
-function formatResults (results) {
-    let output = [];
-    for (let index = 0; index < results.length; index++) {
-        const result = results[index];
-        if (result % 1 != 0) {
-            output.push(format(result, 2));
-        } else {
-            output.push(result)
-        }
+function formatResults (result) {
+    let output, check;
+    if (checkIfUnit(result)) {
+        check = result.value;
+    } else {
+        check = result;
+    }
+    if (check % 1 != 0) {
+        output = format(result, 2);
+    } else {
+        output = result;
     }
     return output;
 }
@@ -489,8 +496,12 @@ function format (value) {
     return math.format(value, precision)
 }
 
+function setAppVersion () {
+    document.querySelector('.version').innerText = APP_VERSION;
+}
+
 function init () {
-    currencies = localStorage.getItem(`currencies-${formatDate(new Date())}`); // only a call a day!!!
+    currencies = localStorage.getItem(`currencies-${formatDate(new Date())}`); // only a call a day/browser!!!
     if (!currencies) {
         getCurrencies().then(e => currencies = e);
     } else {
@@ -501,6 +512,8 @@ function init () {
         document.body.classList.add('dark-theme');
         isDark = true;
     }
+
+    setAppVersion();
 
     initSpeechRecognition();
     // si crea la 1° riga

@@ -51,7 +51,7 @@
 
 .version {
   position: fixed;
-  right: 3%;
+  right: 2%;
   bottom: 3%;
   font-size: 80%;
   color: var(--bg-result);
@@ -106,7 +106,7 @@
 .settings-btn {
   display: inline-block;
   top: 20px;
-  left: 122px;
+  right: 20px;
 }
 
 .listen-btn {
@@ -315,6 +315,9 @@ body {
 
   .right {
     width: 20%;
+  }
+  .result{
+    font-size:65%;
   }
   .couponcode:hover .coupontooltip {
     display: none;
