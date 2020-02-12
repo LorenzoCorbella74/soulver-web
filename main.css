@@ -6,14 +6,16 @@
   /* box-sizing: border-box; */
 }
 
-/* html, body {
+html,
+body {
   height: 100%;
-} */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
 :root {
   --bg: white;
-  --negate: rgb(60, 60, 60);
-  --text-color: rgb(40, 40, 40);
+  --text-color: #444444;
   --bg-dx: #f4f5f5;
   --text-color-border: rgb(220, 220, 220);
   --bg-result: #0187f7;
@@ -22,7 +24,6 @@
 
 .dark-theme {
   --bg: rgb(60, 60, 60);
-  --negate: white;
   --text-color: rgb(220, 220, 220);
   --bg-dx: rgb(80, 80, 80);
   --text-color-border: rgb(50, 50, 50);
@@ -131,33 +132,39 @@ body {
   font-size: 22px;
   font-weight: 400;
   line-height: 1.2;
-  overflow-y: auto;
-  height: 100%;
-  overflow-x: hidden;
   background-color: var(--bg);
   color: var(--text-color);
 }
 
+nav {
+  height: 60px;
+  width: 100%;
+  border-bottom: 1px solid var(--text-color-border);
+}
+
 .content {
-  /*   display: flex; */
-  height: 100%;
+  display: flex;
   margin: 0;
   padding: 0;
   width: 100%;
-  margin-top: -52px;
+  position: absolute;
+  overflow-y: auto;
+  overflow-x: hidden;
+  top: 60px; /* same height as navbar */
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
-.left {
+div.left {
   position: absolute;
   top: 0;
   left: 0;
   width: 60%;
-  min-height: 100%;
   margin-left: 10%;
-  margin-top: 60px;
 }
 
-.right {
+div.right {
   position: absolute;
   right: 0;
   top: 0;
@@ -165,7 +172,7 @@ body {
   width: 30%;
   background-color: var(--bg-dx);
   border-left: 1px solid var(--text-color-border);
-  padding-top: 60px;
+  border-top: 1px solid var(--text-color-border);
 }
 
 .row {
@@ -248,12 +255,12 @@ body {
   border-radius: 4px;
   position: absolute;
   z-index: 100;
-  width: 74px;
-  height: 12px;
+  width: 70px;
+  height: 10px;
 }
 
 .couponcode {
-  margin: 52px 20px;
+  /* margin: 52px 20px; */
 }
 
 /* -------------- CUSTOM SCROLLBAR --------------*/
@@ -290,12 +297,12 @@ body {
     font-size: 18px;
   }
 
-  .left {
+  div.left {
     margin-left: 5%;
     width: 70%;
   }
 
-  .right {
+  div.right {
     width: 25%;
   }
   .couponcode:hover .coupontooltip {
@@ -308,16 +315,16 @@ body {
     font-size: 14px;
   }
 
-  .left {
+  div.left {
     margin-left: 0%;
     width: 80%;
   }
 
-  .right {
+  div.right {
     width: 20%;
   }
-  .result{
-    font-size:65%;
+  .result {
+    font-size: 65%;
   }
   .couponcode:hover .coupontooltip {
     display: none;
