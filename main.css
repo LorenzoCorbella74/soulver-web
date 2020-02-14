@@ -22,6 +22,15 @@ body {
   --text-currency: #bf5dce;
 }
 
+/* .dark-theme {
+  --bg: #282d32;
+  --text-color: #696c70;
+  --bg-dx:#353a3f;
+  --text-color-border: #8e9193;
+  --bg-result: #4cb480;
+  --text-currency: #b24cab;
+} */
+
 .dark-theme {
   --bg: rgb(60, 60, 60);
   --text-color: rgb(220, 220, 220);
