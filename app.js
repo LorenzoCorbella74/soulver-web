@@ -527,7 +527,7 @@ function setAppVersion () {
 function init () {
     currencies = localStorage.getItem(`currencies-${formatDate(new Date())}`); // only a call a day/browser!!!
     if (!currencies) {
-        getCurrencies().then(e => currencies = e);
+        currencies = getCurrencies();
     } else {
         currencies = createUnit(JSON.parse(currencies));
     }
